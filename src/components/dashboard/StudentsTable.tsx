@@ -18,13 +18,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Student, StudentLevel } from "@/types/Student";
+import { StudentDisplay, StudentLevel } from "@/types/Student";
 import { Edit, Trash2, Search, Filter } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 
 interface StudentsTableProps {
-  students: Student[];
-  onEdit: (student: Student) => void;
+  students: StudentDisplay[];
+  onEdit: (student: StudentDisplay) => void;
   onDelete: (studentId: string) => void;
 }
 

@@ -1,105 +1,221 @@
 import { useState, useEffect } from "react";
-import { Student } from "@/types/Student";
+import { Student, StudentDisplay } from "@/types/Student";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "./useAuth";
+import { useToast } from "@/hooks/use-toast";
 
-// Dados mockados para demonstração
-const initialStudents: Student[] = [
-  {
-    id: "1",
-    name: "Ana Silva",
-    age: 28,
-    contact: "ana.silva@email.com",
-    level: "Intermediário",
-    totalClasses: 20,
-    completedClasses: 12,
-    nextClassDate: "2024-01-15",
-    createdAt: "2024-01-01"
-  },
-  {
-    id: "2", 
-    name: "Carlos Santos",
-    age: 35,
-    contact: "(11) 99999-1234",
-    level: "Avançado",
-    totalClasses: 15,
-    completedClasses: 15,
-    nextClassDate: "2024-01-18",
-    createdAt: "2024-01-02"
-  },
-  {
-    id: "3",
-    name: "Maria Oliveira", 
-    age: 22,
-    contact: "maria.oliveira@email.com",
-    level: "Iniciante",
-    totalClasses: 10,
-    completedClasses: 3,
-    nextClassDate: "2024-01-12",
-    createdAt: "2024-01-03"
-  },
-  {
-    id: "4",
-    name: "João Pedro",
-    age: 19,
-    contact: "(11) 98888-5678", 
-    level: "Iniciante",
-    totalClasses: 8,
-    completedClasses: 1,
-    createdAt: "2024-01-04"
-  },
-  {
-    id: "5",
-    name: "Fernanda Costa",
-    age: 31,
-    contact: "fernanda.costa@email.com",
-    level: "Intermediário",
-    totalClasses: 25,
-    completedClasses: 18,
-    nextClassDate: "2024-01-20",
-    createdAt: "2024-01-05"
-  }
-];
+// Helper function to convert database format to display format
+const studentToDisplay = (student: any): StudentDisplay => ({
+  id: student.id.toString(),
+  name: student.name,
+  age: student.age,
+  contact: student.contact,
+  level: student.level as 'Iniciante' | 'Intermediário' | 'Avançado',
+  totalClasses: student.total_classes,
+  completedClasses: student.completed_classes,
+  nextClassDate: student.last_class_date || undefined,
+  createdAt: student.created_at,
+});
+
+// Helper function to convert display format to database format
+const displayToStudent = (display: Omit<StudentDisplay, 'id' | 'createdAt'>): Omit<Student, 'id' | 'created_at' | 'user_id'> => ({
+  name: display.name,
+  age: display.age,
+  contact: display.contact,
+  level: display.level,
+  total_classes: display.totalClasses,
+  completed_classes: display.completedClasses,
+  last_class_date: display.nextClassDate || null,
+});
 
 export const useStudents = () => {
-  const [students, setStudents] = useState<Student[]>([]);
+  const [students, setStudents] = useState<StudentDisplay[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
+  const { toast } = useToast();
 
-  useEffect(() => {
-    // Simula carregamento dos dados (em um app real viria de uma API)
-    const savedStudents = localStorage.getItem('students');
-    if (savedStudents) {
-      setStudents(JSON.parse(savedStudents));
-    } else {
-      setStudents(initialStudents);
-      localStorage.setItem('students', JSON.stringify(initialStudents));
+  const fetchStudents = async () => {
+    if (!user) {
+      setStudents([]);
+      setLoading(false);
+      return;
     }
-  }, []);
 
-  // Salva no localStorage sempre que students muda
-  useEffect(() => {
-    if (students.length > 0) {
-      localStorage.setItem('students', JSON.stringify(students));
+    try {
+      const { data, error } = await supabase
+        .from('students')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching students:', error);
+        toast({
+          title: "Erro ao carregar alunos",
+          description: "Não foi possível carregar a lista de alunos.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const displayStudents = data?.map(studentToDisplay) || [];
+      setStudents(displayStudents);
+    } catch (error) {
+      console.error('Unexpected error:', error);
+      toast({
+        title: "Erro inesperado",
+        description: "Ocorreu um erro ao carregar os dados.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
     }
-  }, [students]);
-
-  const addStudent = (studentData: Omit<Student, 'id' | 'createdAt'>) => {
-    const newStudent: Student = {
-      ...studentData,
-      id: Date.now().toString(),
-      createdAt: new Date().toISOString()
-    };
-    
-    setStudents(prev => [...prev, newStudent]);
   };
 
-  const updateStudent = (studentId: string, studentData: Omit<Student, 'id' | 'createdAt'>) => {
-    setStudents(prev => prev.map(student => 
-      student.id === studentId 
-        ? { ...student, ...studentData }
-        : student
-    ));
+  useEffect(() => {
+    fetchStudents();
+  }, [user]);
+
+  const addStudent = async (studentData: Omit<StudentDisplay, 'id' | 'createdAt'>) => {
+    if (!user) {
+      toast({
+        title: "Erro de autenticação",
+        description: "Você precisa estar logado para adicionar alunos.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const dbStudentData = displayToStudent(studentData);
+      
+      const { data, error } = await supabase
+        .from('students')
+        .insert([{
+          ...dbStudentData,
+          user_id: user.id,
+        }])
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error adding student:', error);
+        toast({
+          title: "Erro ao adicionar aluno",
+          description: "Não foi possível adicionar o aluno.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const newStudent = studentToDisplay(data as any);
+      setStudents(prev => [newStudent, ...prev]);
+      
+      toast({
+        title: "Aluno adicionado!",
+        description: `${studentData.name} foi adicionado com sucesso.`,
+      });
+    } catch (error) {
+      console.error('Unexpected error:', error);
+      toast({
+        title: "Erro inesperado",
+        description: "Ocorreu um erro ao adicionar o aluno.",
+        variant: "destructive",
+      });
+    }
   };
 
-  const deleteStudent = (studentId: string) => {
-    setStudents(prev => prev.filter(student => student.id !== studentId));
+  const updateStudent = async (studentId: string, studentData: Omit<StudentDisplay, 'id' | 'createdAt'>) => {
+    if (!user) {
+      toast({
+        title: "Erro de autenticação",
+        description: "Você precisa estar logado para atualizar alunos.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const dbStudentData = displayToStudent(studentData);
+      
+      const { data, error } = await supabase
+        .from('students')
+        .update(dbStudentData)
+        .eq('id', parseInt(studentId))
+        .eq('user_id', user.id)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error updating student:', error);
+        toast({
+          title: "Erro ao atualizar aluno",
+          description: "Não foi possível atualizar o aluno.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const updatedStudent = studentToDisplay(data as any);
+      setStudents(prev => prev.map(student => 
+        student.id === studentId ? updatedStudent : student
+      ));
+
+      toast({
+        title: "Aluno atualizado!",
+        description: `${studentData.name} foi atualizado com sucesso.`,
+      });
+    } catch (error) {
+      console.error('Unexpected error:', error);
+      toast({
+        title: "Erro inesperado",
+        description: "Ocorreu um erro ao atualizar o aluno.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const deleteStudent = async (studentId: string) => {
+    if (!user) {
+      toast({
+        title: "Erro de autenticação",
+        description: "Você precisa estar logado para excluir alunos.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('students')
+        .delete()
+        .eq('id', parseInt(studentId))
+        .eq('user_id', user.id);
+
+      if (error) {
+        console.error('Error deleting student:', error);
+        toast({
+          title: "Erro ao excluir aluno",
+          description: "Não foi possível excluir o aluno.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      setStudents(prev => prev.filter(student => student.id !== studentId));
+      
+      toast({
+        title: "Aluno excluído!",
+        description: "O aluno foi removido com sucesso.",
+      });
+    } catch (error) {
+      console.error('Unexpected error:', error);
+      toast({
+        title: "Erro inesperado",
+        description: "Ocorreu um erro ao excluir o aluno.",
+        variant: "destructive",
+      });
+    }
   };
 
   const getStudentById = (studentId: string) => {
@@ -116,10 +232,12 @@ export const useStudents = () => {
 
   return {
     students,
+    loading,
     addStudent,
     updateStudent,
     deleteStudent,
     getStudentById,
+    refetch: fetchStudents,
     stats: {
       totalStudents,
       totalCompletedClasses,

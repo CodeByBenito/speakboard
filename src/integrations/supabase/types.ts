@@ -16,16 +16,43 @@ export type Database = {
     Tables: {
       students: {
         Row: {
+          age: number
+          completed_classes: number
+          contact: string
           created_at: string
           id: number
+          last_class_date: string | null
+          level: string
+          name: string
+          total_classes: number
+          updated_at: string
+          user_id: string
         }
         Insert: {
+          age?: number
+          completed_classes?: number
+          contact?: string
           created_at?: string
           id?: number
+          last_class_date?: string | null
+          level?: string
+          name?: string
+          total_classes?: number
+          updated_at?: string
+          user_id: string
         }
         Update: {
+          age?: number
+          completed_classes?: number
+          contact?: string
           created_at?: string
           id?: number
+          last_class_date?: string | null
+          level?: string
+          name?: string
+          total_classes?: number
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }

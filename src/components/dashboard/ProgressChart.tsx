@@ -1,10 +1,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
-import { Student } from "@/types/Student";
+import { StudentDisplay } from "@/types/Student";
 import { TrendingUp } from "lucide-react";
 
 interface ProgressChartProps {
-  students: Student[];
+  students: StudentDisplay[];
 }
 
 export const ProgressChart = ({ students }: ProgressChartProps) => {

@@ -16,14 +16,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Student, StudentLevel } from "@/types/Student";
-import { toast } from "@/hooks/use-toast";
+import { StudentDisplay, StudentLevel } from "@/types/Student";
+import { useToast } from "@/hooks/use-toast";
 
 interface StudentModalProps {
-  student?: Student;
+  student?: StudentDisplay;
   isOpen: boolean;
   onClose: () => void;
-  onSave: (student: Omit<Student, 'id' | 'createdAt'>) => void;
+  onSave: (student: Omit<StudentDisplay, 'id' | 'createdAt'>) => void;
 }
 
 export const StudentModal = ({
@@ -66,6 +66,8 @@ export const StudentModal = ({
     }
   }, [student, isOpen]);
 
+  const { toast } = useToast();
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -78,7 +80,7 @@ export const StudentModal = ({
       return;
     }
 
-    const studentData: Omit<Student, 'id' | 'createdAt'> = {
+    const studentData: Omit<StudentDisplay, 'id' | 'createdAt'> = {
       name: formData.name,
       age: parseInt(formData.age),
       contact: formData.contact,
@@ -90,13 +92,6 @@ export const StudentModal = ({
 
     onSave(studentData);
     onClose();
-    
-    toast({
-      title: student ? "Aluno atualizado" : "Aluno cadastrado",
-      description: student 
-        ? `${formData.name} foi atualizado com sucesso.`
-        : `${formData.name} foi adicionado com sucesso.`,
-    });
   };
 
   return (

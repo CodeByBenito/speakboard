@@ -1,41 +1,33 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, Users, BookOpen, Clock, Calendar } from "lucide-react";
+import { Plus, Users, BookOpen, Clock, Calendar, RefreshCw } from "lucide-react";
 import { StatsCard } from "./StatsCard";
 import { StudentsTable } from "./StudentsTable";
 import { StudentModal } from "./StudentModal";
 import { ProgressChart } from "./ProgressChart";
 import { useStudents } from "@/hooks/useStudents";
-import { Student } from "@/types/Student";
-import { toast } from "@/hooks/use-toast";
+import { StudentDisplay } from "@/types/Student";
 
 export const StudentDashboard = () => {
-  const { students, addStudent, updateStudent, deleteStudent, stats } = useStudents();
+  const { students, loading, addStudent, updateStudent, deleteStudent, stats, refetch } = useStudents();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedStudent, setSelectedStudent] = useState<Student | undefined>();
+  const [selectedStudent, setSelectedStudent] = useState<StudentDisplay | undefined>();
 
   const handleAddStudent = () => {
     setSelectedStudent(undefined);
     setIsModalOpen(true);
   };
 
-  const handleEditStudent = (student: Student) => {
+  const handleEditStudent = (student: StudentDisplay) => {
     setSelectedStudent(student);
     setIsModalOpen(true);
   };
 
   const handleDeleteStudent = (studentId: string) => {
-    const student = students.find(s => s.id === studentId);
-    if (student) {
-      deleteStudent(studentId);
-      toast({
-        title: "Aluno removido",
-        description: `${student.name} foi removido com sucesso.`,
-      });
-    }
+    deleteStudent(studentId);
   };
 
-  const handleSaveStudent = (studentData: Omit<Student, 'id' | 'createdAt'>) => {
+  const handleSaveStudent = (studentData: Omit<StudentDisplay, 'id' | 'createdAt'>) => {
     if (selectedStudent) {
       updateStudent(selectedStudent.id, studentData);
     } else {
@@ -47,6 +39,17 @@ export const StudentDashboard = () => {
     setIsModalOpen(false);
     setSelectedStudent(undefined);
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-subtle flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-muted-foreground">Carregando alunos...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-muted/20 p-4 md:p-6">
@@ -62,14 +65,26 @@ export const StudentDashboard = () => {
             </p>
           </div>
           
-          <Button 
-            onClick={handleAddStudent}
-            variant="gradient"
-            className="shadow-soft"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            Novo Aluno
-          </Button>
+          <div className="flex gap-2">
+            <Button 
+              onClick={refetch} 
+              variant="outline" 
+              size="sm"
+              className="shadow-soft hover:shadow-medium transition-shadow"
+            >
+              <RefreshCw className="w-4 h-4 mr-2" />
+              Atualizar
+            </Button>
+            
+            <Button 
+              onClick={handleAddStudent}
+              variant="gradient"
+              className="shadow-soft"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Novo Aluno
+            </Button>
+          </div>
         </div>
 
         {/* Stats Cards */}
