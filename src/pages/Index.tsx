@@ -2,8 +2,8 @@ import { StudentDashboard } from "@/components/dashboard/StudentDashboard";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserRole } from "@/hooks/useUserRole";
 import { Button } from "@/components/ui/button";
-import { LogOut, Shield, UserPlus } from "lucide-react";
-import { AdminPanel } from "@/components/admin/AdminPanel";
+import { LogOut, Shield } from "lucide-react";
+import { AdminDashboard } from "@/components/admin/AdminDashboard";
 
 const Index = () => {
   const { signOut } = useAuth();
@@ -41,8 +41,7 @@ const Index = () => {
         </Button>
       </div>
       
-      {isAdmin && <AdminPanel />}
-      <StudentDashboard />
+      {isAdmin ? <AdminDashboard /> : <StudentDashboard />}
     </div>
   );
 };
