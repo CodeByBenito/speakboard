@@ -23,13 +23,13 @@ export const AdminPanel = () => {
     setLoading(true);
     
     try {
-      const { success, error } = await promoteToAdmin(email.trim());
+      const result = await promoteToAdmin(email.trim());
       
-      if (success) {
+      if (result) {
         toast.success(`Usuário ${email} promovido a administrador com sucesso!`);
         setEmail('');
       } else {
-        toast.error(error || 'Erro ao promover usuário. Verifique se o email está correto.');
+        toast.error('Usuário não encontrado. Verifique se o email está correto.');
       }
     } catch (error) {
       toast.error('Erro inesperado ao promover usuário');
