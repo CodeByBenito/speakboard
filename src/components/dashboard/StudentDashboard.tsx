@@ -5,11 +5,14 @@ import { StatsCard } from "./StatsCard";
 import { StudentsTable } from "./StudentsTable";
 import { StudentModal } from "./StudentModal";
 import { ProgressChart } from "./ProgressChart";
+import { AdminPanel } from "./AdminPanel";
 import { useStudents } from "@/hooks/useStudents";
+import { useUserRole } from "@/hooks/useUserRole";
 import { StudentDisplay } from "@/types/Student";
 
 export const StudentDashboard = () => {
   const { students, loading, addStudent, updateStudent, deleteStudent, stats, refetch } = useStudents();
+  const { isAdmin, loading: roleLoading } = useUserRole();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState<StudentDisplay | undefined>();
 
@@ -40,7 +43,7 @@ export const StudentDashboard = () => {
     setSelectedStudent(undefined);
   };
 
-  if (loading) {
+  if (loading || roleLoading) {
     return (
       <div className="min-h-screen bg-gradient-subtle flex items-center justify-center">
         <div className="text-center">
@@ -59,6 +62,7 @@ export const StudentDashboard = () => {
           <div>
             <h1 className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
               Dashboard de Alunos
+              {isAdmin && <span className="text-sm font-normal text-primary ml-2">(Admin)</span>}
             </h1>
             <p className="text-muted-foreground mt-1">
               Gerencie seus alunos e acompanhe o progresso das aulas
@@ -86,6 +90,9 @@ export const StudentDashboard = () => {
             </Button>
           </div>
         </div>
+
+        {/* Admin Panel */}
+        <AdminPanel />
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
