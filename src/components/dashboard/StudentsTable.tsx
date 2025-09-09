@@ -109,6 +109,7 @@ export const StudentsTable = ({ students, onEdit, onDelete }: StudentsTableProps
                   <TableHead>Nível</TableHead>
                   <TableHead>Progresso</TableHead>
                   <TableHead>Próxima Aula</TableHead>
+                  <TableHead>Tema</TableHead>
                   <TableHead className="text-right">Ações</TableHead>
                 </TableRow>
               </TableHeader>
@@ -140,6 +141,15 @@ export const StudentsTable = ({ students, onEdit, onDelete }: StudentsTableProps
                         ? new Date(student.nextClassDate).toLocaleDateString('pt-BR')
                         : "Não agendada"
                       }
+                    </TableCell>
+                    <TableCell className="max-w-[200px]">
+                      {student.nextLessonTopic ? (
+                        <div className="px-2 py-1 bg-accent/20 rounded-md text-sm truncate" title={student.nextLessonTopic}>
+                          {student.nextLessonTopic}
+                        </div>
+                      ) : (
+                        <span className="text-muted-foreground text-sm">-</span>
+                      )}
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex gap-2 justify-end">

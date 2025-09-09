@@ -24,6 +24,7 @@ export type Database = {
           last_class_date: string | null
           level: string
           name: string
+          next_lesson_topic: string | null
           total_classes: number
           updated_at: string
           user_id: string
@@ -37,6 +38,7 @@ export type Database = {
           last_class_date?: string | null
           level?: string
           name?: string
+          next_lesson_topic?: string | null
           total_classes?: number
           updated_at?: string
           user_id: string
@@ -50,6 +52,7 @@ export type Database = {
           last_class_date?: string | null
           level?: string
           name?: string
+          next_lesson_topic?: string | null
           total_classes?: number
           updated_at?: string
           user_id?: string

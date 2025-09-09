@@ -39,7 +39,8 @@ export const StudentModal = ({
     level: "" as StudentLevel | "",
     totalClasses: "",
     completedClasses: "",
-    nextClassDate: ""
+    nextClassDate: "",
+    nextLessonTopic: ""
   });
 
   useEffect(() => {
@@ -51,7 +52,8 @@ export const StudentModal = ({
         level: student.level,
         totalClasses: student.totalClasses.toString(),
         completedClasses: student.completedClasses.toString(),
-        nextClassDate: student.nextClassDate || ""
+        nextClassDate: student.nextClassDate || "",
+        nextLessonTopic: student.nextLessonTopic || ""
       });
     } else {
       setFormData({
@@ -61,7 +63,8 @@ export const StudentModal = ({
         level: "",
         totalClasses: "",
         completedClasses: "",
-        nextClassDate: ""
+        nextClassDate: "",
+        nextLessonTopic: ""
       });
     }
   }, [student, isOpen]);
@@ -87,7 +90,8 @@ export const StudentModal = ({
       level: formData.level as StudentLevel,
       totalClasses: parseInt(formData.totalClasses) || 0,
       completedClasses: parseInt(formData.completedClasses) || 0,
-      nextClassDate: formData.nextClassDate || undefined
+      nextClassDate: formData.nextClassDate || undefined,
+      nextLessonTopic: formData.nextLessonTopic || undefined
     };
 
     onSave(studentData);
@@ -189,6 +193,16 @@ export const StudentModal = ({
               type="date"
               value={formData.nextClassDate}
               onChange={(e) => setFormData(prev => ({ ...prev, nextClassDate: e.target.value }))}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="nextLessonTopic">Tema da Próxima Aula</Label>
+            <Input
+              id="nextLessonTopic"
+              value={formData.nextLessonTopic}
+              onChange={(e) => setFormData(prev => ({ ...prev, nextLessonTopic: e.target.value }))}
+              placeholder="Ex: Verbos irregulares, Present Perfect, etc."
             />
           </div>
 

@@ -14,6 +14,7 @@ const studentToDisplay = (student: any): StudentDisplay => ({
   totalClasses: student.total_classes,
   completedClasses: student.completed_classes,
   nextClassDate: student.last_class_date || undefined,
+  nextLessonTopic: student.next_lesson_topic || undefined,
   createdAt: student.created_at,
 });
 
@@ -26,6 +27,7 @@ const displayToStudent = (display: Omit<StudentDisplay, 'id' | 'createdAt'>): Om
   total_classes: display.totalClasses,
   completed_classes: display.completedClasses,
   last_class_date: display.nextClassDate || null,
+  next_lesson_topic: display.nextLessonTopic || null,
 });
 
 export const useStudents = () => {

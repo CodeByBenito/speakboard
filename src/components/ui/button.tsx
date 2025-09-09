@@ -11,14 +11,15 @@ const buttonVariants = cva(
       variant: {
         default: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-soft hover:shadow-medium",
         destructive:
-          "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+          "bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-soft hover:shadow-medium",
         outline:
-          "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
+          "border border-input bg-background hover:bg-accent hover:text-accent-foreground shadow-soft hover:shadow-medium",
         secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        ghost: "hover:bg-accent hover:text-accent-foreground",
+          "bg-secondary text-secondary-foreground hover:bg-secondary/80 shadow-soft hover:shadow-medium",
+        ghost: "hover:bg-accent hover:text-accent-foreground transition-all duration-200",
         link: "text-primary underline-offset-4 hover:underline",
-        gradient: "bg-gradient-primary text-primary-foreground hover:opacity-90 shadow-soft hover:shadow-medium",
+        gradient: "bg-gradient-primary text-white hover:opacity-90 shadow-elegant hover:shadow-elegant transform hover:scale-[1.02]",
+        interactive: "bg-gradient-interactive text-white hover:opacity-90 shadow-medium hover:shadow-elegant transform hover:scale-[1.02]",
         success: "bg-gradient-success text-success-foreground hover:opacity-90 shadow-soft",
         warning: "bg-gradient-warning text-warning-foreground hover:opacity-90 shadow-soft",
       },

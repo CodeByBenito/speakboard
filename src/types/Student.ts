@@ -8,6 +8,7 @@ export interface Student {
   total_classes: number;
   completed_classes: number;
   last_class_date?: string | null;
+  next_lesson_topic?: string | null;
   created_at: string;
   updated_at?: string;
 }
@@ -22,6 +23,7 @@ export interface StudentDisplay {
   totalClasses: number;
   completedClasses: number;
   nextClassDate?: string;
+  nextLessonTopic?: string;
   createdAt: string;
 }
 
