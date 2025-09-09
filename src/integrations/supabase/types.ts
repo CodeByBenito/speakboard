@@ -82,6 +82,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      create_first_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      get_system_stats: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

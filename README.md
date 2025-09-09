@@ -1,73 +1,186 @@
-# Welcome to your Lovable project
+# Controller Dashboard - Sistema Completo de Gestão
 
-## Project info
+Sistema completo de autenticação e gestão com painel administrativo, pronto para produção.
 
-**URL**: https://lovable.dev/projects/a96bfc63-3285-4f48-8dc0-30bc9960e7bc
+## ✨ Funcionalidades
 
-## How can I edit this code?
+### 🔐 Autenticação Segura
+- **Verificação por Email**: Cadastro seguro com confirmação obrigatória
+- **Recuperação de Senha**: Sistema completo de redefinição
+- **Login Rápido**: Interface intuitiva e responsiva
+- **Proteção de Dados**: RLS (Row Level Security) implementado
 
-There are several ways of editing your application.
+### 👨‍💼 Painel Administrativo
+- **Dashboard Completo**: Estatísticas em tempo real do sistema
+- **Gerenciamento de Usuários**: Promover usuários a administradores
+- **Monitoramento**: Atividades e status do sistema
+- **Ferramentas de Sistema**: Notificações e backup
 
-**Use Lovable**
+### 📊 Sistema de Estudantes
+- **CRUD Completo**: Criar, ler, atualizar e deletar estudantes
+- **Controle de Acesso**: Usuários veem apenas seus próprios dados
+- **Admins**: Acesso total para gerenciamento
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/a96bfc63-3285-4f48-8dc0-30bc9960e7bc) and start prompting.
+## 🚀 Deploy para Produção
 
-Changes made via Lovable will be committed automatically to this repo.
+### 1. Configuração do Supabase
 
-**Use your preferred IDE**
+1. **URLs de Autenticação**:
+   - Acesse: [Supabase Dashboard](https://supabase.com/dashboard) → Seu Projeto → Authentication → URL Configuration
+   - **Site URL**: `https://seudominio.com`
+   - **Redirect URLs**: `https://seudominio.com/**`
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+2. **Criar Primeiro Administrador**:
+   ```sql
+   -- Execute no SQL Editor do Supabase
+   -- 1. Encontre seu user ID
+   SELECT id, email FROM auth.users WHERE email = 'seu-email@exemplo.com';
+   
+   -- 2. Promova a admin (substitua o ID)
+   INSERT INTO public.user_roles (user_id, role)
+   VALUES ('USER_ID_AQUI', 'admin'::app_role)
+   ON CONFLICT (user_id, role) DO NOTHING;
+   ```
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### 2. Deploy da Aplicação
 
-Follow these steps:
+O sistema está pronto para deploy em qualquer plataforma:
+
+- **Lovable**: Clique em Share → Publish no painel do Lovable
+- **Vercel**: Deploy automático conectando o GitHub
+- **Netlify**: Build command: `npm run build`, Publish directory: `dist`
+- **AWS/Azure/GCP**: Configure CI/CD com os comandos padrão
+
+### 3. Configuração de Email (Opcional)
+
+Para personalizar emails de confirmação:
+- Acesse Supabase → Authentication → Email Templates
+- Customize as templates conforme sua marca
+
+## 🛠️ Desenvolvimento Local
+
+```bash
+# Instalar dependências
+npm install
+
+# Executar em desenvolvimento
+npm run dev
+
+# Build para produção
+npm run build
+
+# Preview da build de produção
+npm run preview
+```
+
+## 🔧 Tecnologias Utilizadas
+
+- **Frontend**: React 18 + TypeScript + Vite
+- **UI**: Tailwind CSS + shadcn/ui
+- **Backend**: Supabase (Database, Auth, RLS)
+- **Ícones**: Lucide React
+- **Notificações**: Sonner
+- **Roteamento**: React Router DOM
+
+## 📋 Estrutura do Projeto
+
+```
+src/
+├── components/
+│   ├── admin/           # Componentes administrativos
+│   ├── dashboard/       # Dashboard de estudantes
+│   └── ui/             # Componentes base (shadcn)
+├── hooks/              # React hooks customizados
+├── pages/              # Páginas da aplicação
+├── integrations/       # Configuração do Supabase
+└── lib/               # Utilitários
+
+supabase/
+├── migrations/        # Migrações do banco
+└── config.toml       # Configuração do projeto
+```
+
+## 🔒 Segurança Implementada
+
+- **Row Level Security (RLS)**: Proteção de dados por usuário
+- **Verificação por Email**: Confirmação obrigatória de conta
+- **Criptografia**: Senhas seguras com hash
+- **Tokens JWT**: Autenticação stateless segura
+- **Políticas de Acesso**: Controle granular de permissões
+
+## 👥 Funcionalidades por Tipo de Usuário
+
+### Usuário Comum
+- Gerenciar próprios estudantes
+- Visualizar estatísticas pessoais
+- Perfil e configurações
+
+### Administrador
+- **Tudo do usuário comum +**
+- Dashboard administrativo completo
+- Gerenciar todos os usuários
+- Promover outros usuários a admin
+- Estatísticas globais do sistema
+- Ferramentas de sistema
+
+## 🎯 Pronto para Produção
+
+Este sistema inclui:
+
+✅ **Autenticação completa** com verificação por email  
+✅ **Painel administrativo** profissional  
+✅ **Segurança robusta** com RLS  
+✅ **Design responsivo** e moderno  
+✅ **Escalabilidade** com Supabase  
+✅ **Performance otimizada** com Vite  
+✅ **TypeScript** para desenvolvimento seguro  
+✅ **Documentação completa**  
+
+## 🆘 Suporte e Troubleshooting
+
+### Problemas Comuns
+
+1. **Erro "requested path is invalid"**:
+   - Verifique as URLs no Supabase Authentication → URL Configuration
+
+2. **Email não chega**:
+   - Verifique configurações SMTP no Supabase
+   - Confirme se o domínio está verificado
+
+3. **Erro de permissão**:
+   - Confirme se o usuário foi promovido a admin corretamente
+   - Verifique se as políticas RLS estão ativas
+
+### Logs e Monitoramento
+
+- **Supabase Dashboard**: Logs detalhados de auth e database
+- **Browser DevTools**: Console para debugging frontend
+- **Network Tab**: Verificar requisições e respostas
+
+## 📞 Como usar este projeto?
+
+### Projeto Lovable
+
+**URL do Projeto**: https://lovable.dev/projects/a96bfc63-3285-4f48-8dc0-30bc9960e7bc
+
+Você pode editar este código diretamente no Lovable ou localmente usando seu IDE preferido.
+
+### Configuração Local
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
+# 1. Clone o repositório
 git clone <YOUR_GIT_URL>
 
-# Step 2: Navigate to the project directory.
+# 2. Navegue para o diretório
 cd <YOUR_PROJECT_NAME>
 
-# Step 3: Install the necessary dependencies.
-npm i
+# 3. Instale dependências
+npm install
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# 4. Execute em desenvolvimento
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+---
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/a96bfc63-3285-4f48-8dc0-30bc9960e7bc) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+**Sistema desenvolvido para ser robusto, seguro e escalável. Pronto para uso em produção!** 🚀

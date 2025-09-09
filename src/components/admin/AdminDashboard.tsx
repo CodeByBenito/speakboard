@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useUserRole } from '@/hooks/useUserRole';
 import { useAuth } from '@/hooks/useAuth';
-import { supabase } from '@/integrations/supabase/client';
+import { useSystemStats } from '@/hooks/useSystemStats';
 import { toast } from 'sonner';
 import { 
   Shield, 
@@ -21,66 +21,20 @@ import {
   CheckCircle,
   AlertTriangle,
   Mail,
-  Clock
+  Clock,
+  RefreshCw
 } from 'lucide-react';
-
-interface SystemStats {
-  totalUsers: number;
-  totalStudents: number;
-  adminUsers: number;
-  todayRegistrations: number;
-}
 
 export const AdminDashboard = () => {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
-  const [stats, setStats] = useState<SystemStats>({
-    totalUsers: 0,
-    totalStudents: 0,
-    adminUsers: 0,
-    todayRegistrations: 0
-  });
-  const [statsLoading, setStatsLoading] = useState(true);
   const { promoteToAdmin } = useUserRole();
   const { user } = useAuth();
+  const { stats, loading: statsLoading, refreshStats } = useSystemStats();
 
   useEffect(() => {
-    loadSystemStats();
+    refreshStats();
   }, []);
-
-  const loadSystemStats = async () => {
-    setStatsLoading(true);
-    try {
-      // Get total students count
-      const { count: studentsCount } = await supabase
-        .from('students')
-        .select('*', { count: 'exact', head: true });
-
-      // Get admin users count
-      const { count: adminCount } = await supabase
-        .from('user_roles')
-        .select('*', { count: 'exact', head: true })
-        .eq('role', 'admin');
-
-      // Get today's registrations (approximate based on students created today)
-      const today = new Date().toISOString().split('T')[0];
-      const { count: todayCount } = await supabase
-        .from('students')
-        .select('*', { count: 'exact', head: true })
-        .gte('created_at', `${today}T00:00:00`);
-
-      setStats({
-        totalUsers: (studentsCount || 0) + (adminCount || 0),
-        totalStudents: studentsCount || 0,
-        adminUsers: adminCount || 0,
-        todayRegistrations: todayCount || 0
-      });
-    } catch (error) {
-      console.error('Error loading system stats:', error);
-    } finally {
-      setStatsLoading(false);
-    }
-  };
 
   const handlePromoteUser = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -104,7 +58,7 @@ export const AdminDashboard = () => {
         toast.success(`Usuário ${email} promovido a administrador com sucesso!`);
         setEmail('');
         // Reload stats to update admin count
-        loadSystemStats();
+        setTimeout(refreshStats, 1000);
       } else {
         toast.error('Usuário não encontrado. Verifique se o email está correto.');
       }
@@ -137,10 +91,21 @@ export const AdminDashboard = () => {
             Gerencie usuários e monitore o sistema
           </p>
         </div>
-        <Badge variant="secondary" className="flex items-center gap-2">
-          <Shield className="w-4 h-4" />
-          Administrador
-        </Badge>
+        <div className="flex items-center gap-3">
+          <Button
+            onClick={refreshStats}
+            variant="outline"
+            size="sm"
+            disabled={statsLoading}
+          >
+            <RefreshCw className={`w-4 h-4 mr-2 ${statsLoading ? 'animate-spin' : ''}`} />
+            Atualizar
+          </Button>
+          <Badge variant="secondary" className="flex items-center gap-2">
+            <Shield className="w-4 h-4" />
+            Administrador
+          </Badge>
+        </div>
       </div>
 
       {/* System Stats */}
@@ -154,7 +119,7 @@ export const AdminDashboard = () => {
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Total de Usuários</p>
                 <p className="text-2xl font-bold">
-                  {statsLoading ? '...' : stats.totalUsers}
+                  {statsLoading ? '...' : stats.totalUsers.toLocaleString()}
                 </p>
               </div>
             </div>
