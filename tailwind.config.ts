@@ -78,7 +78,8 @@ export default {
 				'gradient-warning': 'var(--gradient-warning)',
 				'gradient-subtle': 'var(--gradient-subtle)',
 				'gradient-hero': 'var(--gradient-hero)',
-				'gradient-card': 'var(--gradient-card)'
+				'gradient-card': 'var(--gradient-card)',
+				'gradient-interactive': 'var(--gradient-interactive)'
 			},
 			boxShadow: {
 				'soft': 'var(--shadow-soft)',
