@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          display_name: string | null
+          id: string
+          is_autonomous: boolean | null
+          organization: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          is_autonomous?: boolean | null
+          organization?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          is_autonomous?: boolean | null
+          organization?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       students: {
         Row: {
           age: number
@@ -22,9 +55,13 @@ export type Database = {
           created_at: string
           id: number
           last_class_date: string | null
+          last_payment_date: string | null
           level: string
           name: string
           next_lesson_topic: string | null
+          payment_amount: number | null
+          payment_due_date: string | null
+          payment_status: string | null
           total_classes: number
           updated_at: string
           user_id: string
@@ -36,9 +73,13 @@ export type Database = {
           created_at?: string
           id?: number
           last_class_date?: string | null
+          last_payment_date?: string | null
           level?: string
           name?: string
           next_lesson_topic?: string | null
+          payment_amount?: number | null
+          payment_due_date?: string | null
+          payment_status?: string | null
           total_classes?: number
           updated_at?: string
           user_id: string
@@ -50,9 +91,13 @@ export type Database = {
           created_at?: string
           id?: number
           last_class_date?: string | null
+          last_payment_date?: string | null
           level?: string
           name?: string
           next_lesson_topic?: string | null
+          payment_amount?: number | null
+          payment_due_date?: string | null
+          payment_status?: string | null
           total_classes?: number
           updated_at?: string
           user_id?: string
@@ -103,6 +148,10 @@ export type Database = {
       promote_to_admin: {
         Args: { user_email: string }
         Returns: boolean
+      }
+      update_payment_status: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
     }
     Enums: {
