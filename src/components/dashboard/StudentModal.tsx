@@ -40,7 +40,11 @@ export const StudentModal = ({
     totalClasses: "",
     completedClasses: "",
     nextClassDate: "",
-    nextLessonTopic: ""
+    nextLessonTopic: "",
+    paymentAmount: "",
+    paymentDueDate: "",
+    paymentStatus: "pending" as 'pending' | 'paid' | 'overdue',
+    lastPaymentDate: ""
   });
 
   useEffect(() => {
@@ -53,7 +57,11 @@ export const StudentModal = ({
         totalClasses: student.totalClasses.toString(),
         completedClasses: student.completedClasses.toString(),
         nextClassDate: student.nextClassDate || "",
-        nextLessonTopic: student.nextLessonTopic || ""
+        nextLessonTopic: student.nextLessonTopic || "",
+        paymentAmount: (student.paymentAmount || 0).toString(),
+        paymentDueDate: student.paymentDueDate || "",
+        paymentStatus: student.paymentStatus || "pending",
+        lastPaymentDate: student.lastPaymentDate || ""
       });
     } else {
       setFormData({
@@ -64,7 +72,11 @@ export const StudentModal = ({
         totalClasses: "",
         completedClasses: "",
         nextClassDate: "",
-        nextLessonTopic: ""
+        nextLessonTopic: "",
+        paymentAmount: "",
+        paymentDueDate: "",
+        paymentStatus: "pending",
+        lastPaymentDate: ""
       });
     }
   }, [student, isOpen]);
@@ -91,7 +103,11 @@ export const StudentModal = ({
       totalClasses: parseInt(formData.totalClasses) || 0,
       completedClasses: parseInt(formData.completedClasses) || 0,
       nextClassDate: formData.nextClassDate || undefined,
-      nextLessonTopic: formData.nextLessonTopic || undefined
+      nextLessonTopic: formData.nextLessonTopic || undefined,
+      paymentAmount: parseFloat(formData.paymentAmount) || 0,
+      paymentDueDate: formData.paymentDueDate || undefined,
+      paymentStatus: formData.paymentStatus,
+      lastPaymentDate: formData.lastPaymentDate || undefined
     };
 
     onSave(studentData);
@@ -204,6 +220,66 @@ export const StudentModal = ({
               onChange={(e) => setFormData(prev => ({ ...prev, nextLessonTopic: e.target.value }))}
               placeholder="Ex: Verbos irregulares, Present Perfect, etc."
             />
+          </div>
+
+          <div className="border-t pt-4">
+            <h3 className="text-sm font-medium text-foreground mb-4">Informações de Pagamento</h3>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="paymentAmount">Valor da Mensalidade (R$)</Label>
+                <Input
+                  id="paymentAmount"
+                  type="number"
+                  step="0.01"
+                  value={formData.paymentAmount}
+                  onChange={(e) => setFormData(prev => ({ ...prev, paymentAmount: e.target.value }))}
+                  placeholder="0.00"
+                  min="0"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="paymentDueDate">Data de Vencimento</Label>
+                <Input
+                  id="paymentDueDate"
+                  type="date"
+                  value={formData.paymentDueDate}
+                  onChange={(e) => setFormData(prev => ({ ...prev, paymentDueDate: e.target.value }))}
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4 mt-4">
+              <div className="space-y-2">
+                <Label htmlFor="paymentStatus">Status do Pagamento</Label>
+                <Select 
+                  value={formData.paymentStatus} 
+                  onValueChange={(value: 'pending' | 'paid' | 'overdue') => 
+                    setFormData(prev => ({ ...prev, paymentStatus: value }))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="pending">Pendente</SelectItem>
+                    <SelectItem value="paid">Pago</SelectItem>
+                    <SelectItem value="overdue">Atrasado</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              {formData.paymentStatus === 'paid' && (
+                <div className="space-y-2">
+                  <Label htmlFor="lastPaymentDate">Data do Último Pagamento</Label>
+                  <Input
+                    id="lastPaymentDate"
+                    type="date"
+                    value={formData.lastPaymentDate}
+                    onChange={(e) => setFormData(prev => ({ ...prev, lastPaymentDate: e.target.value }))}
+                  />
+                </div>
+              )}
+            </div>
           </div>
 
           <DialogFooter>

@@ -15,6 +15,10 @@ const studentToDisplay = (student: any): StudentDisplay => ({
   completedClasses: student.completed_classes,
   nextClassDate: student.last_class_date || undefined,
   nextLessonTopic: student.next_lesson_topic || undefined,
+  paymentAmount: student.payment_amount || 0,
+  paymentDueDate: student.payment_due_date || undefined,
+  paymentStatus: student.payment_status || 'pending',
+  lastPaymentDate: student.last_payment_date || undefined,
   createdAt: student.created_at,
 });
 
@@ -28,6 +32,10 @@ const displayToStudent = (display: Omit<StudentDisplay, 'id' | 'createdAt'>): Om
   completed_classes: display.completedClasses,
   last_class_date: display.nextClassDate || null,
   next_lesson_topic: display.nextLessonTopic || null,
+  payment_amount: display.paymentAmount || 0,
+  payment_due_date: display.paymentDueDate || null,
+  payment_status: display.paymentStatus || 'pending',
+  last_payment_date: display.lastPaymentDate || null,
 });
 
 export const useStudents = () => {

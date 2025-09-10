@@ -1,4 +1,4 @@
-import { StudentDashboard } from "@/components/dashboard/StudentDashboard";
+import { MainTabs } from "@/components/navigation/MainTabs";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserRole } from "@/hooks/useUserRole";
 import { Button } from "@/components/ui/button";
@@ -27,7 +27,7 @@ const Index = () => {
       <div className="flex justify-between items-center p-4 bg-card/50 backdrop-blur-sm border-b shadow-soft">
         <div className="flex items-center gap-3">
           <h1 className="text-xl font-semibold bg-gradient-primary bg-clip-text text-transparent">
-            Controller Dashboard
+            SpeakBoard
           </h1>
           {isAdmin && (
             <div className="flex items-center gap-1 px-3 py-1 bg-gradient-interactive rounded-full shadow-soft">
@@ -45,7 +45,7 @@ const Index = () => {
         </div>
       </div>
       
-      {isAdmin ? <AdminDashboard /> : <StudentDashboard />}
+      {isAdmin ? <AdminDashboard /> : <MainTabs />}
     </div>
   );
 };

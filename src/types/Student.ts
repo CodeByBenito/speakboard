@@ -9,6 +9,10 @@ export interface Student {
   completed_classes: number;
   last_class_date?: string | null;
   next_lesson_topic?: string | null;
+  payment_amount?: number;
+  payment_due_date?: string | null;
+  payment_status?: 'pending' | 'paid' | 'overdue';
+  last_payment_date?: string | null;
   created_at: string;
   updated_at?: string;
 }
@@ -24,6 +28,10 @@ export interface StudentDisplay {
   completedClasses: number;
   nextClassDate?: string;
   nextLessonTopic?: string;
+  paymentAmount?: number;
+  paymentDueDate?: string;
+  paymentStatus?: 'pending' | 'paid' | 'overdue';
+  lastPaymentDate?: string;
   createdAt: string;
 }
 
