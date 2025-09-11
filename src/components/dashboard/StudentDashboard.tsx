@@ -73,8 +73,8 @@ export const StudentDashboard = () => {
             <Button 
               onClick={refetch} 
               variant="outline" 
-              size="sm"
-              className="shadow-soft hover:shadow-medium transition-shadow"
+              size="default"
+              className="shadow-soft hover:shadow-medium transition-shadow min-w-[120px]"
             >
               <RefreshCw className="w-4 h-4 mr-2" />
               Atualizar
@@ -83,7 +83,8 @@ export const StudentDashboard = () => {
             <Button 
               onClick={handleAddStudent}
               variant="gradient"
-              className="shadow-soft"
+              size="default"
+              className="shadow-soft min-w-[130px]"
             >
               <Plus className="h-4 w-4 mr-2" />
               Novo Aluno

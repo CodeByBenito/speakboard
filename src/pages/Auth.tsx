@@ -37,7 +37,7 @@ const Auth = () => {
       if (session) {
         toast({
           title: "Login realizado com sucesso!",
-          description: "Bem-vindo ao Controller Dashboard.",
+          description: "Bem-vindo ao SpeakBoard.",
         });
         navigate('/');
       }
@@ -93,7 +93,7 @@ const Auth = () => {
     }
 
     try {
-      const redirectUrl = `${window.location.origin}/`;
+      const redirectUrl = `${window.location.origin}/email-confirmation`;
       
       const { error } = await supabase.auth.signUp({
         email,
@@ -158,33 +158,40 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-hero p-4">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-red-50 dark:from-blue-900/20 dark:via-gray-900 dark:to-red-900/20 flex items-center justify-center p-4 overflow-y-auto">
+      {/* American flag inspired background pattern */}
+      <div className="fixed inset-0 opacity-10 pointer-events-none">
+        <div className="h-full w-full bg-gradient-to-r from-blue-600 via-white to-red-600"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-blue-600/20 to-transparent"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-transparent via-red-600/20 to-transparent"></div>
+      </div>
+      
+      <div className="w-full max-w-md relative z-10 my-8">
         {/* Header */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-2 mb-4">
-            <div className="w-12 h-12 bg-gradient-primary rounded-xl flex items-center justify-center shadow-elegant">
-              <Shield className="w-6 h-6 text-primary-foreground" />
+        <div className="text-center mb-6">
+          <div className="inline-flex items-center gap-3 mb-4">
+            <div className="w-14 h-14 bg-gradient-primary rounded-xl flex items-center justify-center shadow-elegant">
+              <span className="text-xl font-bold text-white">S</span>
             </div>
-            <div>
+            <div className="text-left">
               <h1 className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-                Controller
+                SpeakBoard
               </h1>
-              <p className="text-sm text-muted-foreground">Dashboard System</p>
+              <p className="text-sm text-muted-foreground">Learn English Platform</p>
             </div>
           </div>
-          <Badge variant="secondary" className="mb-4">
+          <Badge variant="secondary" className="mb-4 bg-primary/10 text-primary border-primary/20">
             <CheckCircle className="w-3 h-3 mr-1" />
             Sistema Seguro com Verificação por Email
           </Badge>
         </div>
 
-        <Card className="shadow-elegant bg-gradient-card border-0">
+        <Card className="shadow-elegant bg-card/95 backdrop-blur-sm border border-border/50">
           <CardHeader className="space-y-1 pb-4">
-            <CardTitle className="text-2xl font-bold text-center">
+            <CardTitle className="text-xl sm:text-2xl font-bold text-center">
               {resetMode ? 'Recuperar Senha' : 'Acesse sua Conta'}
             </CardTitle>
-            <CardDescription className="text-center">
+            <CardDescription className="text-center text-sm">
               {resetMode 
                 ? 'Digite seu email para receber o link de recuperação'
                 : 'Faça login ou crie sua conta para continuar'
@@ -192,17 +199,19 @@ const Auth = () => {
             </CardDescription>
           </CardHeader>
           
-          <CardContent className="pt-0">
+          <CardContent className="pt-0 space-y-4 max-h-[70vh] overflow-y-auto">
             {!resetMode ? (
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="grid w-full grid-cols-2 mb-6">
-                  <TabsTrigger value="signin" className="flex items-center gap-2">
-                    <User className="w-4 h-4" />
-                    Entrar
+                <TabsList className="grid w-full grid-cols-2 mb-4">
+                  <TabsTrigger value="signin" className="flex items-center gap-2 text-xs sm:text-sm">
+                    <User className="w-3 h-3 sm:w-4 sm:h-4" />
+                    <span className="hidden sm:inline">Entrar</span>
+                    <span className="sm:hidden">Login</span>
                   </TabsTrigger>
-                  <TabsTrigger value="signup" className="flex items-center gap-2">
-                    <Mail className="w-4 h-4" />
-                    Cadastrar
+                  <TabsTrigger value="signup" className="flex items-center gap-2 text-xs sm:text-sm">
+                    <Mail className="w-3 h-3 sm:w-4 sm:h-4" />
+                    <span className="hidden sm:inline">Cadastrar</span>
+                    <span className="sm:hidden">Registro</span>
                   </TabsTrigger>
                 </TabsList>
                 
@@ -220,7 +229,7 @@ const Auth = () => {
                           placeholder="seu@email.com"
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
-                          className="pl-10"
+                          className="pl-10 text-sm"
                           required
                         />
                       </div>
@@ -238,7 +247,7 @@ const Auth = () => {
                           placeholder="Digite sua senha"
                           value={password}
                           onChange={(e) => setPassword(e.target.value)}
-                          className="pl-10 pr-10"
+                          className="pl-10 pr-10 text-sm"
                           required
                         />
                         <button
@@ -255,23 +264,24 @@ const Auth = () => {
                       <button
                         type="button"
                         onClick={() => setResetMode(true)}
-                        className="text-sm text-primary hover:underline"
+                        className="text-xs sm:text-sm text-primary hover:underline"
                       >
                         Esqueceu a senha?
                       </button>
                     </div>
 
                     {error && (
-                      <Alert variant="destructive">
+                      <Alert variant="destructive" className="text-sm">
                         <AlertCircle className="h-4 w-4" />
-                        <AlertDescription>{error}</AlertDescription>
+                        <AlertDescription className="text-xs sm:text-sm">{error}</AlertDescription>
                       </Alert>
                     )}
 
                     <Button 
                       type="submit" 
-                      className="w-full bg-gradient-primary hover:opacity-90 transition-opacity" 
+                      className="w-full bg-gradient-primary hover:opacity-90 transition-opacity text-sm" 
                       disabled={loading || !validateEmail(email)}
+                      size="default"
                     >
                       {loading ? 'Entrando...' : 'Entrar'}
                     </Button>
@@ -292,7 +302,7 @@ const Auth = () => {
                           placeholder="seu@email.com"
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
-                          className="pl-10"
+                          className="pl-10 text-sm"
                           required
                         />
                       </div>
@@ -307,10 +317,10 @@ const Auth = () => {
                         <Input
                           id="signup-password"
                           type={showPassword ? "text" : "password"}
-                          placeholder="Crie uma senha forte (min. 6 caracteres)"
+                          placeholder="Crie uma senha (min. 6 caracteres)"
                           value={password}
                           onChange={(e) => setPassword(e.target.value)}
-                          className="pl-10 pr-10"
+                          className="pl-10 pr-10 text-sm"
                           required
                           minLength={6}
                         />
@@ -336,30 +346,31 @@ const Auth = () => {
                           placeholder="Confirme sua senha"
                           value={confirmPassword}
                           onChange={(e) => setConfirmPassword(e.target.value)}
-                          className="pl-10"
+                          className="pl-10 text-sm"
                           required
                         />
                       </div>
                     </div>
 
                     {error && (
-                      <Alert variant="destructive">
+                      <Alert variant="destructive" className="text-sm">
                         <AlertCircle className="h-4 w-4" />
-                        <AlertDescription>{error}</AlertDescription>
+                        <AlertDescription className="text-xs sm:text-sm">{error}</AlertDescription>
                       </Alert>
                     )}
 
                     {success && (
-                      <Alert className="border-success bg-success/10">
+                      <Alert className="border-success bg-success/10 text-sm">
                         <CheckCircle className="h-4 w-4 text-success" />
-                        <AlertDescription className="text-success">{success}</AlertDescription>
+                        <AlertDescription className="text-success text-xs sm:text-sm">{success}</AlertDescription>
                       </Alert>
                     )}
 
                     <Button 
                       type="submit" 
-                      className="w-full bg-gradient-success hover:opacity-90 transition-opacity" 
+                      className="w-full bg-gradient-success hover:opacity-90 transition-opacity text-sm" 
                       disabled={loading || !validateEmail(email) || password.length < 6}
+                      size="default"
                     >
                       {loading ? 'Cadastrando...' : 'Criar Conta'}
                     </Button>
@@ -380,39 +391,41 @@ const Auth = () => {
                       placeholder="seu@email.com"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="pl-10"
+                      className="pl-10 text-sm"
                       required
                     />
                   </div>
                 </div>
 
                 {error && (
-                  <Alert variant="destructive">
+                  <Alert variant="destructive" className="text-sm">
                     <AlertCircle className="h-4 w-4" />
-                    <AlertDescription>{error}</AlertDescription>
+                    <AlertDescription className="text-xs sm:text-sm">{error}</AlertDescription>
                   </Alert>
                 )}
 
                 {success && (
-                  <Alert className="border-success bg-success/10">
+                  <Alert className="border-success bg-success/10 text-sm">
                     <CheckCircle className="h-4 w-4 text-success" />
-                    <AlertDescription className="text-success">{success}</AlertDescription>
+                    <AlertDescription className="text-success text-xs sm:text-sm">{success}</AlertDescription>
                   </Alert>
                 )}
 
-                <div className="flex gap-3">
+                <div className="flex flex-col sm:flex-row gap-3">
                   <Button 
                     type="button" 
                     variant="outline" 
                     onClick={() => setResetMode(false)}
-                    className="flex-1"
+                    className="flex-1 text-sm"
+                    size="default"
                   >
                     Voltar
                   </Button>
                   <Button 
                     type="submit" 
-                    className="flex-1 bg-gradient-warning hover:opacity-90 transition-opacity" 
+                    className="flex-1 bg-gradient-warning hover:opacity-90 transition-opacity text-sm" 
                     disabled={loading || !validateEmail(email)}
+                    size="default"
                   >
                     {loading ? 'Enviando...' : 'Enviar Link'}
                   </Button>
@@ -423,7 +436,7 @@ const Auth = () => {
         </Card>
 
         {/* Footer Info */}
-        <div className="text-center mt-6 space-y-2">
+        <div className="text-center mt-4 space-y-2">
           <p className="text-xs text-muted-foreground">
             Sistema seguro com autenticação por email
           </p>
