@@ -103,13 +103,13 @@ export const FinancialDashboard = () => {
   }
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="p-4 md:p-6 space-y-6">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+          <h2 className="text-2xl md:text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
             Controle Financeiro
           </h2>
-          <p className="text-muted-foreground mt-2">
+          <p className="text-sm text-muted-foreground mt-1 md:mt-2">
             Gerencie os pagamentos e acompanhe sua receita
           </p>
         </div>
@@ -196,20 +196,20 @@ export const FinancialDashboard = () => {
               Nenhum aluno cadastrado ainda
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2">
               {students.map((student) => (
-                <div key={student.id} className="flex items-center justify-between p-4 border border-soft rounded-lg hover:bg-muted/30 transition-colors">
-                  <div className="flex items-center space-x-4">
+                <div key={student.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 border border-soft rounded-lg hover:bg-muted/30 transition-colors gap-4">
+                  <div className="flex items-center space-x-4 w-full sm:w-auto">
                     <div className="flex-1">
                       <h4 className="font-medium">{student.name}</h4>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-sm text-muted-foreground break-all">
                         {student.contact}
                       </p>
                     </div>
                   </div>
                   
-                  <div className="flex items-center space-x-4">
-                    <div className="text-right">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full sm:w-auto">
+                    <div className="text-left sm:text-right w-full sm:w-auto">
                       <div className="font-medium">
                         R$ {(student.paymentAmount || 0).toFixed(2)}
                       </div>

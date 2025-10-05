@@ -49,7 +49,18 @@ export const UserProfile = () => {
   }
 
   return (
-    <div className="max-w-2xl mx-auto p-6 space-y-6">
+    <div className="max-w-4xl mx-auto p-4 md:p-6 space-y-6">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
+        <div>
+          <h2 className="text-2xl md:text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+            {profile?.displayName || 'Meu Perfil'}
+          </h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            Gerencie suas informações pessoais
+          </p>
+        </div>
+      </div>
+      
       <Card className="border-soft shadow-elegant">
         <CardHeader className="text-center">
           <div className="relative mx-auto w-24 h-24 mb-4">

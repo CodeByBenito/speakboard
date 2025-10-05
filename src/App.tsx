@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import EmailConfirmation from "./pages/EmailConfirmation";
+import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
 import { useAuth } from "./hooks/useAuth";
 import { ThemeProvider } from "./components/ThemeProvider";
@@ -27,6 +28,7 @@ const AppContent = () => {
     <Routes>
       <Route path="/auth" element={<Auth />} />
       <Route path="/email-confirmation" element={<EmailConfirmation />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/" element={user ? <Index /> : <Auth />} />
       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
       <Route path="*" element={<NotFound />} />

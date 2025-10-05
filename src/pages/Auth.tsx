@@ -9,6 +9,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { Logo } from '@/components/ui/logo';
 import { Mail, Lock, User, Shield, CheckCircle, AlertCircle, Eye, EyeOff } from 'lucide-react';
 
 const Auth = () => {
@@ -132,9 +133,15 @@ const Auth = () => {
     setError(null);
     setSuccess(null);
 
+    if (!validateEmail(email)) {
+      setError('Por favor, insira um email válido.');
+      setLoading(false);
+      return;
+    }
+
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/`,
+        redirectTo: `${window.location.origin}/reset-password`,
       });
 
       if (error) {
@@ -145,6 +152,7 @@ const Auth = () => {
           title: "Link enviado!",
           description: "Verifique seu email para redefinir sua senha.",
         });
+        setTimeout(() => setResetMode(false), 3000);
       }
     } catch (err) {
       setError('Erro inesperado. Tente novamente.');
@@ -158,31 +166,29 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-red-50 dark:from-blue-900/20 dark:via-gray-900 dark:to-red-900/20 flex items-center justify-center p-4 overflow-y-auto">
-      {/* American flag inspired background pattern */}
-      <div className="fixed inset-0 opacity-10 pointer-events-none">
-        <div className="h-full w-full bg-gradient-to-r from-blue-600 via-white to-red-600"></div>
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-blue-600/20 to-transparent"></div>
-        <div className="absolute inset-0 bg-gradient-to-t from-transparent via-red-600/20 to-transparent"></div>
+    <div className="min-h-screen bg-gradient-to-br from-background via-card to-muted flex items-center justify-center p-4 overflow-y-auto">
+      {/* Modern dark background with red accents - FIAP inspired */}
+      <div className="fixed inset-0 opacity-20 pointer-events-none">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-accent/10"></div>
+        <div className="absolute top-0 left-0 w-96 h-96 bg-primary/20 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-accent/20 rounded-full blur-3xl"></div>
       </div>
       
       <div className="w-full max-w-md relative z-10 my-8">
         {/* Header */}
         <div className="text-center mb-6">
-          <div className="inline-flex items-center gap-3 mb-4">
-            <div className="w-14 h-14 bg-gradient-primary rounded-xl flex items-center justify-center shadow-elegant">
-              <span className="text-xl font-bold text-white">S</span>
-            </div>
-            <div className="text-left">
-              <h1 className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-                SpeakBoard
-              </h1>
-              <p className="text-sm text-muted-foreground">Learn English Platform</p>
-            </div>
+          <div className="flex justify-center mb-4">
+            <Logo className="w-20 h-20" />
           </div>
-          <Badge variant="secondary" className="mb-4 bg-primary/10 text-primary border-primary/20">
-            <CheckCircle className="w-3 h-3 mr-1" />
-            Sistema Seguro com Verificação por Email
+          <div className="mb-4">
+            <h1 className="text-3xl md:text-4xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+              SpeakBoard
+            </h1>
+            <p className="text-sm text-muted-foreground mt-1">Learn English Platform</p>
+          </div>
+          <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">
+            <Shield className="w-3 h-3 mr-1" />
+            Sistema Seguro
           </Badge>
         </div>
 

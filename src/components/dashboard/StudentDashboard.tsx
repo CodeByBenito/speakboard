@@ -55,26 +55,26 @@ export const StudentDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-muted/20 p-4 md:p-6">
+      <div className="min-h-screen bg-gradient-to-br from-background to-muted/20 p-4 md:p-6">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <h1 className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+            <h1 className="text-2xl md:text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
               Dashboard de Alunos
               {isAdmin && <span className="text-sm font-normal text-primary ml-2">(Admin)</span>}
             </h1>
-            <p className="text-muted-foreground mt-1">
+            <p className="text-sm text-muted-foreground mt-1">
               Gerencie seus alunos e acompanhe o progresso das aulas
             </p>
           </div>
           
-          <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
             <Button 
               onClick={refetch} 
               variant="outline" 
               size="default"
-              className="shadow-soft hover:shadow-medium transition-shadow min-w-[120px]"
+              className="shadow-soft hover:shadow-medium transition-shadow w-full sm:w-auto sm:min-w-[120px]"
             >
               <RefreshCw className="w-4 h-4 mr-2" />
               Atualizar
@@ -84,7 +84,7 @@ export const StudentDashboard = () => {
               onClick={handleAddStudent}
               variant="gradient"
               size="default"
-              className="shadow-soft min-w-[130px]"
+              className="shadow-soft w-full sm:w-auto sm:min-w-[130px]"
             >
               <Plus className="h-4 w-4 mr-2" />
               Novo Aluno
