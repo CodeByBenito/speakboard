@@ -19,8 +19,10 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { StudentDisplay, StudentLevel } from "@/types/Student";
-import { Edit, Trash2, Search, Filter } from "lucide-react";
+import { Edit, Trash2, Search, Filter, History } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { StudentHistory } from "./StudentHistory";
 
 interface StudentsTableProps {
   students: StudentDisplay[];
@@ -29,6 +31,7 @@ interface StudentsTableProps {
 }
 
 export const StudentsTable = ({ students, onEdit, onDelete }: StudentsTableProps) => {
+  const [selectedStudentForHistory, setSelectedStudentForHistory] = useState<StudentDisplay | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [levelFilter, setLevelFilter] = useState<StudentLevel | "all">("all");
 
@@ -154,20 +157,31 @@ export const StudentsTable = ({ students, onEdit, onDelete }: StudentsTableProps
                         )}
                       </TableCell>
                       <TableCell className="text-right">
-                        <div className="flex gap-2 justify-end">
+                        <div className="flex gap-1 justify-end">
                           <Button 
-                            variant="outline" 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => setSelectedStudentForHistory(student)}
+                            className="hover:bg-accent/20 hover:text-accent"
+                            title="Ver histórico"
+                          >
+                            <History className="h-4 w-4" />
+                          </Button>
+                          <Button 
+                            variant="ghost" 
                             size="sm"
                             onClick={() => onEdit(student)}
-                            className="hover:bg-primary hover:text-primary-foreground"
+                            className="hover:bg-primary/20 hover:text-primary"
+                            title="Editar"
                           >
                             <Edit className="h-4 w-4" />
                           </Button>
                           <Button 
-                            variant="outline" 
+                            variant="ghost" 
                             size="sm"
                             onClick={() => onDelete(student.id)}
-                            className="hover:bg-destructive hover:text-destructive-foreground"
+                            className="hover:bg-destructive/20 hover:text-destructive"
+                            title="Excluir"
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
@@ -238,10 +252,19 @@ export const StudentsTable = ({ students, onEdit, onDelete }: StudentsTableProps
                       <Button 
                         variant="outline" 
                         size="sm"
+                        onClick={() => setSelectedStudentForHistory(student)}
+                        className="flex-1 hover:bg-accent hover:text-accent-foreground"
+                      >
+                        <History className="h-4 w-4 mr-1" />
+                        Histórico
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
                         onClick={() => onEdit(student)}
                         className="flex-1 hover:bg-primary hover:text-primary-foreground"
                       >
-                        <Edit className="h-4 w-4 mr-2" />
+                        <Edit className="h-4 w-4 mr-1" />
                         Editar
                       </Button>
                       <Button 
@@ -250,7 +273,7 @@ export const StudentsTable = ({ students, onEdit, onDelete }: StudentsTableProps
                         onClick={() => onDelete(student.id)}
                         className="flex-1 hover:bg-destructive hover:text-destructive-foreground"
                       >
-                        <Trash2 className="h-4 w-4 mr-2" />
+                        <Trash2 className="h-4 w-4 mr-1" />
                         Excluir
                       </Button>
                     </div>
@@ -261,6 +284,21 @@ export const StudentsTable = ({ students, onEdit, onDelete }: StudentsTableProps
           </>
         )}
       </CardContent>
+      
+      {/* History Dialog */}
+      <Dialog open={!!selectedStudentForHistory} onOpenChange={() => setSelectedStudentForHistory(null)}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Histórico do Aluno</DialogTitle>
+          </DialogHeader>
+          {selectedStudentForHistory && (
+            <StudentHistory 
+              studentId={selectedStudentForHistory.id}
+              studentName={selectedStudentForHistory.name}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 };

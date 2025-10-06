@@ -14,6 +14,91 @@ export type Database = {
   }
   public: {
     Tables: {
+      class_history: {
+        Row: {
+          class_date: string
+          created_at: string
+          id: string
+          notes: string | null
+          status: string
+          student_id: number
+          topic: string | null
+          user_id: string
+        }
+        Insert: {
+          class_date: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          status?: string
+          student_id: number
+          topic?: string | null
+          user_id: string
+        }
+        Update: {
+          class_date?: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          status?: string
+          student_id?: number
+          topic?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_student"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payment_history: {
+        Row: {
+          amount: number
+          created_at: string
+          due_date: string | null
+          id: string
+          notes: string | null
+          payment_date: string
+          status: string
+          student_id: number
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          due_date?: string | null
+          id?: string
+          notes?: string | null
+          payment_date: string
+          status?: string
+          student_id: number
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          due_date?: string | null
+          id?: string
+          notes?: string | null
+          payment_date?: string
+          status?: string
+          student_id?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_student"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
