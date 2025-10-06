@@ -11,7 +11,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Logo } from '@/components/ui/logo';
 import { Mail, Lock, User, Shield, CheckCircle, AlertCircle, Eye, EyeOff } from 'lucide-react';
-
 const Auth = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -23,42 +22,49 @@ const Auth = () => {
   const [activeTab, setActiveTab] = useState('signin');
   const [resetMode, setResetMode] = useState(false);
   const navigate = useNavigate();
-  const { toast } = useToast();
-
+  const {
+    toast
+  } = useToast();
   useEffect(() => {
     // Check if user is already logged in
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(({
+      data: {
+        session
+      }
+    }) => {
       if (session) {
         navigate('/');
       }
     });
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const {
+      data: {
+        subscription
+      }
+    } = supabase.auth.onAuthStateChange((event, session) => {
       if (session) {
         toast({
           title: "Login realizado com sucesso!",
-          description: "Bem-vindo ao SpeakBoard.",
+          description: "Bem-vindo ao SpeakBoard."
         });
         navigate('/');
       }
     });
-
     return () => subscription.unsubscribe();
   }, [navigate, toast]);
-
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
     setSuccess(null);
-
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const {
+        error
+      } = await supabase.auth.signInWithPassword({
         email,
-        password,
+        password
       });
-
       if (error) {
         if (error.message.includes('Invalid login credentials')) {
           setError('Email ou senha incorretos. Verifique suas credenciais.');
@@ -74,36 +80,32 @@ const Auth = () => {
       setLoading(false);
     }
   };
-
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
     setSuccess(null);
-
     if (password !== confirmPassword) {
       setError('As senhas não coincidem.');
       setLoading(false);
       return;
     }
-
     if (password.length < 6) {
       setError('A senha deve ter pelo menos 6 caracteres.');
       setLoading(false);
       return;
     }
-
     try {
       const redirectUrl = `${window.location.origin}/email-confirmation`;
-      
-      const { error } = await supabase.auth.signUp({
+      const {
+        error
+      } = await supabase.auth.signUp({
         email,
         password,
         options: {
           emailRedirectTo: redirectUrl
         }
       });
-
       if (error) {
         if (error.message.includes('User already registered')) {
           setError('Este email já está cadastrado. Tente fazer login ou recuperar sua senha.');
@@ -117,7 +119,7 @@ const Auth = () => {
         setConfirmPassword('');
         toast({
           title: "Cadastro realizado!",
-          description: "Verifique seu email para confirmar a conta.",
+          description: "Verifique seu email para confirmar a conta."
         });
       }
     } catch (err) {
@@ -126,31 +128,29 @@ const Auth = () => {
       setLoading(false);
     }
   };
-
   const handlePasswordReset = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
     setSuccess(null);
-
     if (!validateEmail(email)) {
       setError('Por favor, insira um email válido.');
       setLoading(false);
       return;
     }
-
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`,
+      const {
+        error
+      } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`
       });
-
       if (error) {
         setError(error.message);
       } else {
         setSuccess('Link de recuperação enviado! Verifique seu email.');
         toast({
           title: "Link enviado!",
-          description: "Verifique seu email para redefinir sua senha.",
+          description: "Verifique seu email para redefinir sua senha."
         });
         setTimeout(() => setResetMode(false), 3000);
       }
@@ -160,13 +160,10 @@ const Auth = () => {
       setLoading(false);
     }
   };
-
   const validateEmail = (email: string) => {
     return email.includes('@') && email.includes('.');
   };
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-card to-muted flex items-center justify-center p-4 overflow-y-auto">
+  return <div className="min-h-screen bg-gradient-to-br from-background via-card to-muted flex items-center justify-center p-4 overflow-y-auto">
       {/* Modern dark background with red accents - FIAP inspired */}
       <div className="fixed inset-0 opacity-20 pointer-events-none">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-accent/10"></div>
@@ -184,7 +181,7 @@ const Auth = () => {
             <h1 className="text-3xl md:text-4xl font-bold bg-gradient-primary bg-clip-text text-transparent">
               SpeakBoard
             </h1>
-            <p className="text-sm text-muted-foreground mt-1">Learn English Platform</p>
+            <p className="text-sm text-muted-foreground mt-1">Educational Dashboard</p>
           </div>
           <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">
             <Shield className="w-3 h-3 mr-1" />
@@ -198,16 +195,12 @@ const Auth = () => {
               {resetMode ? 'Recuperar Senha' : 'Acesse sua Conta'}
             </CardTitle>
             <CardDescription className="text-center text-sm">
-              {resetMode 
-                ? 'Digite seu email para receber o link de recuperação'
-                : 'Faça login ou crie sua conta para continuar'
-              }
+              {resetMode ? 'Digite seu email para receber o link de recuperação' : 'Faça login ou crie sua conta para continuar'}
             </CardDescription>
           </CardHeader>
           
           <CardContent className="pt-0 space-y-4 max-h-[70vh] overflow-y-auto">
-            {!resetMode ? (
-              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            {!resetMode ? <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                 <TabsList className="grid w-full grid-cols-2 mb-4">
                   <TabsTrigger value="signin" className="flex items-center gap-2 text-xs sm:text-sm">
                     <User className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -229,15 +222,7 @@ const Auth = () => {
                       </Label>
                       <div className="relative">
                         <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                        <Input
-                          id="signin-email"
-                          type="email"
-                          placeholder="seu@email.com"
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                          className="pl-10 text-sm"
-                          required
-                        />
+                        <Input id="signin-email" type="email" placeholder="seu@email.com" value={email} onChange={e => setEmail(e.target.value)} className="pl-10 text-sm" required />
                       </div>
                     </div>
                     
@@ -247,48 +232,25 @@ const Auth = () => {
                       </Label>
                       <div className="relative">
                         <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                        <Input
-                          id="signin-password"
-                          type={showPassword ? "text" : "password"}
-                          placeholder="Digite sua senha"
-                          value={password}
-                          onChange={(e) => setPassword(e.target.value)}
-                          className="pl-10 pr-10 text-sm"
-                          required
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-3 top-3 text-muted-foreground hover:text-foreground"
-                        >
+                        <Input id="signin-password" type={showPassword ? "text" : "password"} placeholder="Digite sua senha" value={password} onChange={e => setPassword(e.target.value)} className="pl-10 pr-10 text-sm" required />
+                        <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-3 text-muted-foreground hover:text-foreground">
                           {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                         </button>
                       </div>
                     </div>
 
                     <div className="flex justify-end">
-                      <button
-                        type="button"
-                        onClick={() => setResetMode(true)}
-                        className="text-xs sm:text-sm text-primary hover:underline"
-                      >
+                      <button type="button" onClick={() => setResetMode(true)} className="text-xs sm:text-sm text-primary hover:underline">
                         Esqueceu a senha?
                       </button>
                     </div>
 
-                    {error && (
-                      <Alert variant="destructive" className="text-sm">
+                    {error && <Alert variant="destructive" className="text-sm">
                         <AlertCircle className="h-4 w-4" />
                         <AlertDescription className="text-xs sm:text-sm">{error}</AlertDescription>
-                      </Alert>
-                    )}
+                      </Alert>}
 
-                    <Button 
-                      type="submit" 
-                      className="w-full bg-gradient-primary hover:opacity-90 transition-opacity text-sm" 
-                      disabled={loading || !validateEmail(email)}
-                      size="default"
-                    >
+                    <Button type="submit" className="w-full bg-gradient-primary hover:opacity-90 transition-opacity text-sm" disabled={loading || !validateEmail(email)} size="default">
                       {loading ? 'Entrando...' : 'Entrar'}
                     </Button>
                   </form>
@@ -302,15 +264,7 @@ const Auth = () => {
                       </Label>
                       <div className="relative">
                         <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                        <Input
-                          id="signup-email"
-                          type="email"
-                          placeholder="seu@email.com"
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                          className="pl-10 text-sm"
-                          required
-                        />
+                        <Input id="signup-email" type="email" placeholder="seu@email.com" value={email} onChange={e => setEmail(e.target.value)} className="pl-10 text-sm" required />
                       </div>
                     </div>
                     
@@ -320,21 +274,8 @@ const Auth = () => {
                       </Label>
                       <div className="relative">
                         <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                        <Input
-                          id="signup-password"
-                          type={showPassword ? "text" : "password"}
-                          placeholder="Crie uma senha (min. 6 caracteres)"
-                          value={password}
-                          onChange={(e) => setPassword(e.target.value)}
-                          className="pl-10 pr-10 text-sm"
-                          required
-                          minLength={6}
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-3 top-3 text-muted-foreground hover:text-foreground"
-                        >
+                        <Input id="signup-password" type={showPassword ? "text" : "password"} placeholder="Crie uma senha (min. 6 caracteres)" value={password} onChange={e => setPassword(e.target.value)} className="pl-10 pr-10 text-sm" required minLength={6} />
+                        <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-3 text-muted-foreground hover:text-foreground">
                           {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                         </button>
                       </div>
@@ -346,98 +287,55 @@ const Auth = () => {
                       </Label>
                       <div className="relative">
                         <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                        <Input
-                          id="confirm-password"
-                          type={showPassword ? "text" : "password"}
-                          placeholder="Confirme sua senha"
-                          value={confirmPassword}
-                          onChange={(e) => setConfirmPassword(e.target.value)}
-                          className="pl-10 text-sm"
-                          required
-                        />
+                        <Input id="confirm-password" type={showPassword ? "text" : "password"} placeholder="Confirme sua senha" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} className="pl-10 text-sm" required />
                       </div>
                     </div>
 
-                    {error && (
-                      <Alert variant="destructive" className="text-sm">
+                    {error && <Alert variant="destructive" className="text-sm">
                         <AlertCircle className="h-4 w-4" />
                         <AlertDescription className="text-xs sm:text-sm">{error}</AlertDescription>
-                      </Alert>
-                    )}
+                      </Alert>}
 
-                    {success && (
-                      <Alert className="border-success bg-success/10 text-sm">
+                    {success && <Alert className="border-success bg-success/10 text-sm">
                         <CheckCircle className="h-4 w-4 text-success" />
                         <AlertDescription className="text-success text-xs sm:text-sm">{success}</AlertDescription>
-                      </Alert>
-                    )}
+                      </Alert>}
 
-                    <Button 
-                      type="submit" 
-                      className="w-full bg-gradient-success hover:opacity-90 transition-opacity text-sm" 
-                      disabled={loading || !validateEmail(email) || password.length < 6}
-                      size="default"
-                    >
+                    <Button type="submit" className="w-full bg-gradient-success hover:opacity-90 transition-opacity text-sm" disabled={loading || !validateEmail(email) || password.length < 6} size="default">
                       {loading ? 'Cadastrando...' : 'Criar Conta'}
                     </Button>
                   </form>
                 </TabsContent>
-              </Tabs>
-            ) : (
-              <form onSubmit={handlePasswordReset} className="space-y-4">
+              </Tabs> : <form onSubmit={handlePasswordReset} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="reset-email" className="text-sm font-medium">
                     Email
                   </Label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="reset-email"
-                      type="email"
-                      placeholder="seu@email.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="pl-10 text-sm"
-                      required
-                    />
+                    <Input id="reset-email" type="email" placeholder="seu@email.com" value={email} onChange={e => setEmail(e.target.value)} className="pl-10 text-sm" required />
                   </div>
                 </div>
 
-                {error && (
-                  <Alert variant="destructive" className="text-sm">
+                {error && <Alert variant="destructive" className="text-sm">
                     <AlertCircle className="h-4 w-4" />
                     <AlertDescription className="text-xs sm:text-sm">{error}</AlertDescription>
-                  </Alert>
-                )}
+                  </Alert>}
 
-                {success && (
-                  <Alert className="border-success bg-success/10 text-sm">
+                {success && <Alert className="border-success bg-success/10 text-sm">
                     <CheckCircle className="h-4 w-4 text-success" />
                     <AlertDescription className="text-success text-xs sm:text-sm">{success}</AlertDescription>
-                  </Alert>
-                )}
+                  </Alert>}
 
                 <div className="flex flex-col sm:flex-row gap-3">
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    onClick={() => setResetMode(false)}
-                    className="flex-1 text-sm"
-                    size="default"
-                  >
+                  <Button type="button" variant="outline" onClick={() => setResetMode(false)} className="flex-1 text-sm" size="default">
                     Voltar
                   </Button>
-                  <Button 
-                    type="submit" 
-                    className="flex-1 bg-gradient-warning hover:opacity-90 transition-opacity text-sm" 
-                    disabled={loading || !validateEmail(email)}
-                    size="default"
-                  >
+                  <Button type="submit" className="flex-1 bg-gradient-warning hover:opacity-90 transition-opacity text-sm" disabled={loading || !validateEmail(email)} size="default">
                     {loading ? 'Enviando...' : 'Enviar Link'}
                   </Button>
                 </div>
-              </form>
-            )}
+              </form>}
           </CardContent>
         </Card>
 
@@ -458,8 +356,6 @@ const Auth = () => {
           </div>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default Auth;
