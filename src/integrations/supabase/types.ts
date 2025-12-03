@@ -215,14 +215,8 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      create_first_admin: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
-      get_system_stats: {
-        Args: Record<PropertyKey, never>
-        Returns: Json
-      }
+      create_first_admin: { Args: never; Returns: undefined }
+      get_system_stats: { Args: never; Returns: Json }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -230,14 +224,8 @@ export type Database = {
         }
         Returns: boolean
       }
-      promote_to_admin: {
-        Args: { user_email: string }
-        Returns: boolean
-      }
-      update_payment_status: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
+      promote_to_admin: { Args: { user_email: string }; Returns: boolean }
+      update_payment_status: { Args: never; Returns: undefined }
     }
     Enums: {
       app_role: "admin" | "user"
