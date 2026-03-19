@@ -1,22 +1,26 @@
+import { cn } from "@/lib/utils";
+
 export const Logo = ({ className = "" }: { className?: string }) => {
   return (
     <div 
-      className={`flex items-center justify-center bg-black rounded-lg ${className}`}
+      className={cn(
+        "flex items-center justify-center rounded-xl bg-gradient-interactive",
+        className
+      )}
       style={{ 
-        width: '60px', 
-        height: '60px',
-        boxShadow: '0 0 20px rgba(220, 38, 38, 0.3)'
+        width: '44px', 
+        height: '44px',
+        boxShadow: '0 4px 14px hsl(210 78% 46% / 0.35)'
       }}
     >
       <span 
-        className="text-3xl font-black tracking-tight"
+        className="text-lg font-black tracking-tight text-primary-foreground"
         style={{ 
-          color: '#DC2626',
-          textShadow: '0 0 10px rgba(220, 38, 38, 0.5)',
-          fontFamily: 'system-ui, -apple-system, sans-serif'
+          fontFamily: 'system-ui, -apple-system, sans-serif',
+          letterSpacing: '-0.02em'
         }}
       >
-        SP
+        SB
       </span>
     </div>
   );
