@@ -28,14 +28,15 @@ interface StudentsTableProps {
   students: StudentDisplay[];
   onEdit: (student: StudentDisplay) => void;
   onDelete: (studentId: string) => void;
+  hideFilters?: boolean;
 }
 
-export const StudentsTable = ({ students, onEdit, onDelete }: StudentsTableProps) => {
+export const StudentsTable = ({ students, onEdit, onDelete, hideFilters = false }: StudentsTableProps) => {
   const [selectedStudentForHistory, setSelectedStudentForHistory] = useState<StudentDisplay | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [levelFilter, setLevelFilter] = useState<StudentLevel | "all">("all");
 
-  const filteredStudents = students.filter(student => {
+  const filteredStudents = hideFilters ? students : students.filter(student => {
     const matchesSearch = student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          student.contact.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesLevel = levelFilter === "all" || student.level === levelFilter;
@@ -61,39 +62,41 @@ export const StudentsTable = ({ students, onEdit, onDelete }: StudentsTableProps
   };
 
   return (
-    <Card className="shadow-card">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Filter className="h-5 w-5" />
-          Alunos Cadastrados
-        </CardTitle>
-        
-        <div className="flex flex-col sm:flex-row gap-4 mt-4">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Buscar por nome ou contato..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
-            />
-          </div>
+    <Card className="shadow-card border-border/40 bg-card/60 backdrop-blur-sm">
+      {!hideFilters && (
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Filter className="h-5 w-5" />
+            Alunos Cadastrados
+          </CardTitle>
           
-          <Select value={levelFilter} onValueChange={(value: StudentLevel | "all") => setLevelFilter(value)}>
-            <SelectTrigger className="w-full sm:w-[180px]">
-              <SelectValue placeholder="Filtrar por nível" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todos os níveis</SelectItem>
-              <SelectItem value="Iniciante">Iniciante</SelectItem>
-              <SelectItem value="Intermediário">Intermediário</SelectItem>
-              <SelectItem value="Avançado">Avançado</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </CardHeader>
+          <div className="flex flex-col sm:flex-row gap-4 mt-4">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Buscar por nome ou contato..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            
+            <Select value={levelFilter} onValueChange={(value: StudentLevel | "all") => setLevelFilter(value)}>
+              <SelectTrigger className="w-full sm:w-[180px]">
+                <SelectValue placeholder="Filtrar por nível" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos os níveis</SelectItem>
+                <SelectItem value="Iniciante">Iniciante</SelectItem>
+                <SelectItem value="Intermediário">Intermediário</SelectItem>
+                <SelectItem value="Avançado">Avançado</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </CardHeader>
+      )}
       
-      <CardContent>
+      <CardContent className={hideFilters ? "pt-6" : ""}>
         {filteredStudents.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
             {students.length === 0 
