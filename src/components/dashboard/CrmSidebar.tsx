@@ -63,6 +63,8 @@ export const CrmSidebar = ({
   // Dialog States
   const [isClassDialogOpen, setIsClassDialogOpen] = useState(false);
   const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
+  const [isReportDialogOpen, setIsReportDialogOpen] = useState(false);
+  const [selectedReportToView, setSelectedReportToView] = useState<{ title: string; content: string; date: string } | null>(null);
   
   // Form States
   const [classForm, setClassForm] = useState({
@@ -76,6 +78,12 @@ export const CrmSidebar = ({
     date: new Date().toISOString().split("T")[0],
     status: "paid" as "paid" | "pending" | "overdue",
     notes: ""
+  });
+
+  const [reportForm, setReportForm] = useState({
+    date: new Date().toISOString().split("T")[0],
+    title: "",
+    content: ""
   });
 
   // Keep payment amount state synced when selected student changes
@@ -227,6 +235,34 @@ export const CrmSidebar = ({
     }
   };
 
+  const handleLogReport = async () => {
+    if (!student) return;
+
+    if (!reportForm.title || !reportForm.content) {
+      toast.error("Por favor, preencha o título e o conteúdo do relatório.");
+      return;
+    }
+
+    try {
+      await history.addReportRecord({
+        report_date: new Date(reportForm.date).toISOString(),
+        title: reportForm.title,
+        content: reportForm.content
+      });
+
+      // Reset form
+      setReportForm({
+        date: new Date().toISOString().split("T")[0],
+        title: "",
+        content: ""
+      });
+      setIsReportDialogOpen(false);
+    } catch (error) {
+      console.error(error);
+      toast.error("Erro ao registrar relatório.");
+    }
+  };
+
   const getLevelBadgeColor = (level?: string) => {
     switch (level) {
       case "Iniciante":
@@ -369,6 +405,7 @@ export const CrmSidebar = ({
 
   // Calculate student specific values
   const studentProgress = student.totalClasses > 0 ? (student.completedClasses / student.totalClasses) * 100 : 0;
+  const studentReports = history.classHistory ? history.classHistory.filter(r => r.status === 'report') : [];
   
   return (
     <aside className="w-full flex flex-col bg-card/30 backdrop-blur-xl border-l border-border/50 h-screen sticky top-0 p-6 overflow-y-auto z-30">
@@ -505,18 +542,69 @@ export const CrmSidebar = ({
         )}
       </div>
 
+      {/* Recent pedagogical reports */}
+      <div className="p-4 bg-muted/40 border border-border/30 rounded-2xl mb-6">
+        <div className="flex items-center justify-between mb-3">
+          <h5 className="font-semibold text-xs text-muted-foreground uppercase tracking-wider">Relatórios Pedagógicos</h5>
+          <span className="text-[10px] text-primary font-medium">{studentReports.length} total</span>
+        </div>
+        {studentReports.length === 0 ? (
+          <p className="text-xs text-muted-foreground">Nenhum relatório registrado ainda.</p>
+        ) : (
+          <div className="space-y-2 max-h-[140px] overflow-y-auto pr-1">
+            {studentReports.slice(0, 3).map((report) => (
+              <div 
+                key={report.id} 
+                onClick={() => setSelectedReportToView({
+                  title: report.topic || "Relatório sem título",
+                  content: report.notes || "",
+                  date: format(new Date(report.class_date), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })
+                })}
+                className="p-2.5 bg-card/60 hover:bg-card border border-border/50 rounded-xl cursor-pointer hover:border-primary/50 transition-all duration-200"
+              >
+                <div className="flex justify-between items-start gap-1">
+                  <span className="text-xs font-semibold text-foreground truncate max-w-[150px]">
+                    {report.topic || "Relatório"}
+                  </span>
+                  <span className="text-[9px] text-muted-foreground flex-shrink-0">
+                    {format(new Date(report.class_date), "dd/MM")}
+                  </span>
+                </div>
+                <p className="text-[10px] text-muted-foreground line-clamp-2 mt-1 leading-relaxed">
+                  {report.notes}
+                </p>
+              </div>
+            ))}
+            {studentReports.length > 3 && (
+              <p className="text-[10px] text-primary text-center pt-1 font-medium hover:underline cursor-pointer" onClick={() => {
+                toast.info("Todos os relatórios podem ser vistos em detalhes no Histórico.");
+              }}>
+                + {studentReports.length - 3} outros no Histórico
+              </p>
+            )}
+          </div>
+        )}
+      </div>
+
       {/* CRM Action Buttons */}
       <div className="mt-auto space-y-2">
         <Button 
           onClick={() => setIsClassDialogOpen(true)}
-          className="w-full bg-foreground text-background hover:bg-foreground/90 font-semibold rounded-xl text-xs py-5"
+          className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-semibold rounded-xl text-xs py-5 shadow-soft hover:shadow-medium"
         >
           <Plus className="w-4 h-4 mr-2" /> Registrar Aula Concluída
         </Button>
         <Button 
+          onClick={() => setIsReportDialogOpen(true)}
+          variant="outline"
+          className="w-full border-primary/20 bg-background text-primary hover:bg-primary/10 font-semibold rounded-xl text-xs py-5 shadow-soft"
+        >
+          <FileText className="w-4 h-4 mr-2" /> Registrar Relatório
+        </Button>
+        <Button 
           onClick={() => setIsPaymentDialogOpen(true)}
           variant="outline"
-          className="w-full font-semibold rounded-xl text-xs py-5"
+          className="w-full font-semibold rounded-xl text-xs py-5 shadow-soft"
         >
           <DollarSign className="w-4 h-4 mr-2" /> Registrar Pagamento
         </Button>
@@ -643,6 +731,66 @@ export const CrmSidebar = ({
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsPaymentDialogOpen(false)}>Cancelar</Button>
             <Button onClick={handleLogPayment}>Confirmar Recebimento</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* dialog for registering report */}
+      <Dialog open={isReportDialogOpen} onOpenChange={setIsReportDialogOpen}>
+        <DialogContent className="max-w-md rounded-2xl">
+          <DialogHeader>
+            <DialogTitle>Registrar Relatório do Aluno</DialogTitle>
+            <CardDescription>Adicione uma observação pedagógica ou feedback geral que não esteja atrelado a uma aula específica.</CardDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-2">
+              <Label htmlFor="report-date">Data do Relatório</Label>
+              <Input 
+                id="report-date" 
+                type="date" 
+                value={reportForm.date}
+                onChange={(e) => setReportForm(prev => ({ ...prev, date: e.target.value }))}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="report-title">Título / Assunto</Label>
+              <Input 
+                id="report-title" 
+                placeholder="Ex: Desempenho em Conversação, Feedback de Pronúncia"
+                value={reportForm.title}
+                onChange={(e) => setReportForm(prev => ({ ...prev, title: e.target.value }))}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="report-content">Conteúdo do Relatório</Label>
+              <Textarea 
+                id="report-content" 
+                placeholder="Descreva detalhadamente o progresso, pontos fortes e tópicos a melhorar do aluno..."
+                rows={4}
+                value={reportForm.content}
+                onChange={(e) => setReportForm(prev => ({ ...prev, content: e.target.value }))}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsReportDialogOpen(false)}>Cancelar</Button>
+            <Button onClick={handleLogReport}>Salvar Relatório</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* dialog for viewing report details */}
+      <Dialog open={!!selectedReportToView} onOpenChange={() => setSelectedReportToView(null)}>
+        <DialogContent className="max-w-md rounded-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-primary">{selectedReportToView?.title}</DialogTitle>
+            <CardDescription>Relatório registrado em {selectedReportToView?.date}</CardDescription>
+          </DialogHeader>
+          <div className="py-4 whitespace-pre-wrap text-sm text-foreground leading-relaxed bg-muted/30 p-4 rounded-xl border border-border/50">
+            {selectedReportToView?.content}
+          </div>
+          <DialogFooter>
+            <Button onClick={() => setSelectedReportToView(null)}>Fechar</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

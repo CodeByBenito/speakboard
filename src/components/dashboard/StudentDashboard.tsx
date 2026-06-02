@@ -199,9 +199,9 @@ export const StudentDashboard = () => {
                 const progress = s.totalClasses > 0 ? Math.round((s.completedClasses / s.totalClasses) * 100) : 0;
                 
                 const levelGradients = {
-                  'Iniciante': 'from-amber-400 to-orange-500',
-                  'Intermediário': 'from-blue-500 to-indigo-600',
-                  'Avançado': 'from-emerald-400 to-teal-600',
+                  'Iniciante': 'from-orange-600/90 to-orange-500/80',
+                  'Intermediário': 'from-zinc-800 to-zinc-700',
+                  'Avançado': 'from-neutral-950 to-neutral-900 border border-white/5',
                 };
                 
                 return (

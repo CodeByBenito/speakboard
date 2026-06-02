@@ -17,9 +17,10 @@ interface StudentHistoryProps {
 }
 
 export const StudentHistory = ({ studentId, studentName }: StudentHistoryProps) => {
-  const { classHistory, paymentHistory, loading, addClassRecord, addPaymentRecord } = useStudentHistory(studentId);
+  const { classHistory, paymentHistory, loading, addClassRecord, addPaymentRecord, addReportRecord } = useStudentHistory(studentId);
   const [isClassDialogOpen, setIsClassDialogOpen] = useState(false);
   const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
+  const [isReportDialogOpen, setIsReportDialogOpen] = useState(false);
 
   const [classForm, setClassForm] = useState({
     class_date: new Date().toISOString().split('T')[0],
@@ -34,6 +35,12 @@ export const StudentHistory = ({ studentId, studentName }: StudentHistoryProps) 
     due_date: '',
     status: 'paid',
     notes: '',
+  });
+
+  const [reportForm, setReportForm] = useState({
+    report_date: new Date().toISOString().split('T')[0],
+    title: '',
+    content: '',
   });
 
   const handleAddClass = async () => {
@@ -69,6 +76,23 @@ export const StudentHistory = ({ studentId, studentName }: StudentHistoryProps) 
       notes: '',
     });
   };
+
+  const handleAddReport = async () => {
+    await addReportRecord({
+      report_date: new Date(reportForm.report_date).toISOString(),
+      title: reportForm.title,
+      content: reportForm.content,
+    });
+    setIsReportDialogOpen(false);
+    setReportForm({
+      report_date: new Date().toISOString().split('T')[0],
+      title: '',
+      content: '',
+    });
+  };
+
+  const classesOnly = classHistory.filter(record => record.status !== 'report');
+  const reportsOnly = classHistory.filter(record => record.status === 'report');
 
   if (loading) {
     return (
@@ -156,10 +180,10 @@ export const StudentHistory = ({ studentId, studentName }: StudentHistoryProps) 
         </div>
 
         <div className="space-y-2 max-h-[300px] overflow-y-auto">
-          {classHistory.length === 0 ? (
+          {classesOnly.length === 0 ? (
             <p className="text-sm text-muted-foreground text-center py-8">Nenhuma aula registrada</p>
           ) : (
-            classHistory.map((record) => (
+            classesOnly.map((record) => (
               <div key={record.id} className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 p-3 bg-muted/50 rounded-lg border border-border">
                 <div className="flex-1 space-y-1">
                   <div className="flex items-center gap-2 flex-wrap">
@@ -188,6 +212,82 @@ export const StudentHistory = ({ studentId, studentName }: StudentHistoryProps) 
                     </p>
                   )}
                 </div>
+              </div>
+            ))
+          )}
+        </div>
+      </Card>
+
+      {/* Reports History */}
+      <Card className="p-4 md:p-6 shadow-card border-border/50 bg-card/40">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
+          <div className="flex items-center gap-2">
+            <FileText className="w-5 h-5 text-primary" />
+            <h4 className="font-semibold text-base md:text-lg">Relatórios Pedagógicos</h4>
+          </div>
+          <Dialog open={isReportDialogOpen} onOpenChange={setIsReportDialogOpen}>
+            <DialogTrigger asChild>
+              <Button size="sm" variant="outline" className="w-full sm:w-auto border-primary/20 hover:bg-primary/10 hover:text-primary">
+                <Plus className="w-4 h-4 mr-2" />
+                Adicionar Relatório
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-md">
+              <DialogHeader>
+                <DialogTitle>Registrar Novo Relatório</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
+                <div>
+                  <Label htmlFor="hist_report_date">Data do Relatório</Label>
+                  <Input
+                    id="hist_report_date"
+                    type="date"
+                    value={reportForm.report_date}
+                    onChange={(e) => setReportForm({ ...reportForm, report_date: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="hist_report_title">Título / Assunto</Label>
+                  <Input
+                    id="hist_report_title"
+                    value={reportForm.title}
+                    onChange={(e) => setReportForm({ ...reportForm, title: e.target.value })}
+                    placeholder="Ex: Evolução da Pronúncia"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="hist_report_content">Conteúdo do Relatório</Label>
+                  <Textarea
+                    id="hist_report_content"
+                    value={reportForm.content}
+                    onChange={(e) => setReportForm({ ...reportForm, content: e.target.value })}
+                    placeholder="Notas sobre o desempenho do aluno..."
+                    rows={4}
+                  />
+                </div>
+                <Button onClick={handleAddReport} className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
+                  Salvar Relatório
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
+
+        <div className="space-y-2 max-h-[300px] overflow-y-auto">
+          {reportsOnly.length === 0 ? (
+            <p className="text-sm text-muted-foreground text-center py-8">Nenhum relatório registrado</p>
+          ) : (
+            reportsOnly.map((record) => (
+              <div key={record.id} className="p-4 bg-muted/30 border border-border/50 rounded-xl hover:border-primary/20 transition-all duration-200">
+                <div className="flex justify-between items-start gap-2 flex-wrap mb-2">
+                  <h5 className="font-semibold text-sm text-foreground">{record.topic || "Relatório Pedagógico"}</h5>
+                  <span className="text-xs text-muted-foreground font-medium">
+                    {format(new Date(record.class_date), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
+                  </span>
+                </div>
+                <p className="text-xs text-muted-foreground whitespace-pre-wrap leading-relaxed bg-card/55 p-3 rounded-lg border border-border/40">
+                  {record.notes}
+                </p>
               </div>
             ))
           )}

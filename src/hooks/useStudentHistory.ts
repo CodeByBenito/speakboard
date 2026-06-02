@@ -124,6 +124,33 @@ export const useStudentHistory = (studentId: string | number) => {
     }
   };
 
+  const addReportRecord = async (data: {
+    report_date: string;
+    title: string;
+    content: string;
+  }) => {
+    if (!user) return;
+
+    try {
+      const { error } = await supabase.from('class_history').insert({
+        student_id: Number(studentId),
+        user_id: user.id,
+        class_date: data.report_date,
+        topic: data.title || null,
+        notes: data.content || null,
+        status: 'report',
+      });
+
+      if (error) throw error;
+
+      toast.success('Relatório registrado com sucesso');
+      await fetchHistory();
+    } catch (error: any) {
+      console.error('Error adding report record:', error);
+      toast.error('Erro ao registrar relatório');
+    }
+  };
+
   useEffect(() => {
     fetchHistory();
   }, [user, studentId]);
@@ -134,6 +161,7 @@ export const useStudentHistory = (studentId: string | number) => {
     loading,
     addClassRecord,
     addPaymentRecord,
+    addReportRecord,
     refetch: fetchHistory,
   };
 };
