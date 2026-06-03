@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Plus, Users, BookOpen, Clock, Calendar, RefreshCw, LayoutGrid, List, Search } from "lucide-react";
-import { StatsCard } from "./StatsCard";
 import { StudentsTable } from "./StudentsTable";
 import { StudentModal } from "./StudentModal";
 import { CrmSidebar } from "./CrmSidebar";
