@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { 
   Camera, 
   User, 
+  Users,
   Building, 
   Loader2, 
   Sparkles, 

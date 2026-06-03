@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { StudentDisplay } from "@/types/Student";
-import { useStudentHistory } from "@/hooks/useStudentHistory";
+import { useStudentHistory, ClassHistory } from "@/hooks/useStudentHistory";
 import { useProfile } from "@/hooks/useProfile";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -66,7 +66,54 @@ export const CrmSidebar = ({
   const [isClassDialogOpen, setIsClassDialogOpen] = useState(false);
   const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
   const [isReportDialogOpen, setIsReportDialogOpen] = useState(false);
-  const [selectedReportToView, setSelectedReportToView] = useState<{ title: string; content: string; date: string } | null>(null);
+  const [selectedReportToView, setSelectedReportToView] = useState<ClassHistory | null>(null);
+  
+  const [editingReport, setEditingReport] = useState<ClassHistory | null>(null);
+  const [isEditReportDialogOpen, setIsEditReportDialogOpen] = useState(false);
+  const [editReportForm, setEditReportForm] = useState({
+    date: '',
+    title: '',
+    content: ''
+  });
+
+  const handleEditClick = (record: ClassHistory) => {
+    setEditingReport(record);
+    setEditReportForm({
+      date: record.class_date.split('T')[0],
+      title: record.topic || '',
+      content: record.notes || ''
+    });
+    setIsEditReportDialogOpen(true);
+    setSelectedReportToView(null);
+  };
+
+  const handleUpdateReport = async () => {
+    if (!editingReport) return;
+    try {
+      await history.updateReportRecord(editingReport.id, {
+        report_date: new Date(editReportForm.date).toISOString(),
+        title: editReportForm.title,
+        content: editReportForm.content
+      });
+      setIsEditReportDialogOpen(false);
+      setEditingReport(null);
+    } catch (error) {
+      console.error(error);
+      toast.error("Erro ao atualizar relatório.");
+    }
+  };
+
+  const handleDeleteClick = async (id: string) => {
+    if (window.confirm("Tem certeza de que deseja excluir este relatório? Esta ação não pode ser desfeita.")) {
+      try {
+        await history.deleteReportRecord(id);
+        setSelectedReportToView(null);
+      } catch (error) {
+        console.error(error);
+        toast.error("Erro ao excluir relatório.");
+      }
+    }
+  };
   
   // Form States
   const [classForm, setClassForm] = useState({
@@ -557,11 +604,7 @@ export const CrmSidebar = ({
             {studentReports.slice(0, 3).map((report) => (
               <div 
                 key={report.id} 
-                onClick={() => setSelectedReportToView({
-                  title: report.topic || "Relatório sem título",
-                  content: report.notes || "",
-                  date: format(new Date(report.class_date), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })
-                })}
+                onClick={() => setSelectedReportToView(report)}
                 className="p-2.5 bg-card/60 hover:bg-card border border-border/50 rounded-xl cursor-pointer hover:border-primary/50 transition-all duration-200"
               >
                 <div className="flex justify-between items-start gap-1">
@@ -785,14 +828,80 @@ export const CrmSidebar = ({
       <Dialog open={!!selectedReportToView} onOpenChange={() => setSelectedReportToView(null)}>
         <DialogContent className="max-w-md rounded-2xl">
           <DialogHeader>
-            <DialogTitle className="text-primary">{selectedReportToView?.title}</DialogTitle>
-            <CardDescription>Relatório registrado em {selectedReportToView?.date}</CardDescription>
+            <DialogTitle className="text-primary">{selectedReportToView?.topic || "Relatório Pedagógico"}</DialogTitle>
+            <CardDescription>
+              Relatório registrado em {selectedReportToView?.class_date ? format(new Date(selectedReportToView.class_date), "dd 'de' MMMM 'de' yyyy", { locale: ptBR }) : ""}
+            </CardDescription>
           </DialogHeader>
           <div className="py-4 whitespace-pre-wrap text-sm text-foreground leading-relaxed bg-muted/30 p-4 rounded-xl border border-border/50">
-            {selectedReportToView?.content}
+            {selectedReportToView?.notes}
+          </div>
+          <DialogFooter className="flex flex-col sm:flex-row gap-2 sm:gap-0">
+            <div className="flex gap-2 mr-auto w-full sm:w-auto">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => selectedReportToView && handleDeleteClick(selectedReportToView.id)}
+                className="flex-1 sm:flex-none text-destructive hover:bg-destructive/10 hover:text-destructive border-destructive/20 rounded-xl"
+              >
+                <Trash2 className="w-3.5 h-3.5 mr-1.5" /> Excluir
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => selectedReportToView && handleEditClick(selectedReportToView)}
+                className="flex-1 sm:flex-none hover:bg-primary/10 hover:text-primary rounded-xl"
+              >
+                <Edit className="w-3.5 h-3.5 mr-1.5" /> Editar
+              </Button>
+            </div>
+            <Button onClick={() => setSelectedReportToView(null)} className="rounded-xl w-full sm:w-auto">Fechar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* dialog for editing report details */}
+      <Dialog open={isEditReportDialogOpen} onOpenChange={setIsEditReportDialogOpen}>
+        <DialogContent className="max-w-md rounded-2xl border-border/50">
+          <DialogHeader>
+            <DialogTitle>Editar Relatório</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
+            <div>
+              <Label htmlFor="edit-report-date">Data do Relatório</Label>
+              <Input 
+                id="edit-report-date" 
+                type="date" 
+                value={editReportForm.date}
+                onChange={(e) => setEditReportForm(prev => ({ ...prev, date: e.target.value }))}
+                className="rounded-xl"
+              />
+            </div>
+            <div>
+              <Label htmlFor="edit-report-title">Título / Assunto</Label>
+              <Input 
+                id="edit-report-title" 
+                placeholder="Ex: Desempenho em Conversação"
+                value={editReportForm.title}
+                onChange={(e) => setEditReportForm(prev => ({ ...prev, title: e.target.value }))}
+                className="rounded-xl"
+              />
+            </div>
+            <div>
+              <Label htmlFor="edit-report-content">Conteúdo do Relatório</Label>
+              <Textarea 
+                id="edit-report-content" 
+                placeholder="Descreva detalhadamente o progresso..."
+                rows={4}
+                value={editReportForm.content}
+                onChange={(e) => setEditReportForm(prev => ({ ...prev, content: e.target.value }))}
+                className="rounded-xl resize-none text-sm leading-relaxed"
+              />
+            </div>
           </div>
           <DialogFooter>
-            <Button onClick={() => setSelectedReportToView(null)}>Fechar</Button>
+            <Button variant="outline" onClick={() => setIsEditReportDialogOpen(false)} className="rounded-xl">Cancelar</Button>
+            <Button onClick={handleUpdateReport} className="bg-primary text-primary-foreground hover:bg-primary/90 font-semibold rounded-xl">Salvar Alterações</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

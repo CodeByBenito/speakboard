@@ -151,6 +151,52 @@ export const useStudentHistory = (studentId: string | number) => {
     }
   };
 
+  const updateReportRecord = async (id: string, data: {
+    report_date: string;
+    title: string;
+    content: string;
+  }) => {
+    if (!user) return;
+
+    try {
+      const { error } = await supabase
+        .from('class_history')
+        .update({
+          class_date: data.report_date,
+          topic: data.title || null,
+          notes: data.content || null,
+        })
+        .eq('id', id);
+
+      if (error) throw error;
+
+      toast.success('Relatório atualizado com sucesso');
+      await fetchHistory();
+    } catch (error: any) {
+      console.error('Error updating report record:', error);
+      toast.error('Erro ao atualizar relatório');
+    }
+  };
+
+  const deleteReportRecord = async (id: string) => {
+    if (!user) return;
+
+    try {
+      const { error } = await supabase
+        .from('class_history')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      toast.success('Relatório excluído com sucesso');
+      await fetchHistory();
+    } catch (error: any) {
+      console.error('Error deleting report record:', error);
+      toast.error('Erro ao excluir relatório');
+    }
+  };
+
   useEffect(() => {
     fetchHistory();
   }, [user, studentId]);
@@ -162,6 +208,8 @@ export const useStudentHistory = (studentId: string | number) => {
     addClassRecord,
     addPaymentRecord,
     addReportRecord,
+    updateReportRecord,
+    deleteReportRecord,
     refetch: fetchHistory,
   };
 };

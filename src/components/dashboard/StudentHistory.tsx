@@ -6,8 +6,14 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useStudentHistory } from '@/hooks/useStudentHistory';
-import { History, BookOpen, DollarSign, Calendar, FileText, Plus } from 'lucide-react';
+import { useStudentHistory, ClassHistory } from '@/hooks/useStudentHistory';
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuTrigger 
+} from '@/components/ui/dropdown-menu';
+import { History, BookOpen, DollarSign, Calendar, FileText, Plus, Pencil, Trash2, MoreVertical } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { parseLocalDate } from '@/lib/utils';
@@ -18,7 +24,16 @@ interface StudentHistoryProps {
 }
 
 export const StudentHistory = ({ studentId, studentName }: StudentHistoryProps) => {
-  const { classHistory, paymentHistory, loading, addClassRecord, addPaymentRecord, addReportRecord } = useStudentHistory(studentId);
+  const { 
+    classHistory, 
+    paymentHistory, 
+    loading, 
+    addClassRecord, 
+    addPaymentRecord, 
+    addReportRecord,
+    updateReportRecord,
+    deleteReportRecord
+  } = useStudentHistory(studentId);
   const [isClassDialogOpen, setIsClassDialogOpen] = useState(false);
   const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
   const [isReportDialogOpen, setIsReportDialogOpen] = useState(false);
@@ -40,6 +55,14 @@ export const StudentHistory = ({ studentId, studentName }: StudentHistoryProps) 
 
   const [reportForm, setReportForm] = useState({
     report_date: new Date().toISOString().split('T')[0],
+    title: '',
+    content: '',
+  });
+
+  const [editingReport, setEditingReport] = useState<ClassHistory | null>(null);
+  const [isEditReportDialogOpen, setIsEditReportDialogOpen] = useState(false);
+  const [editReportForm, setEditReportForm] = useState({
+    report_date: '',
     title: '',
     content: '',
   });
@@ -90,6 +113,33 @@ export const StudentHistory = ({ studentId, studentName }: StudentHistoryProps) 
       title: '',
       content: '',
     });
+  };
+
+  const handleEditClick = (record: ClassHistory) => {
+    setEditingReport(record);
+    setEditReportForm({
+      report_date: record.class_date.split('T')[0],
+      title: record.topic || '',
+      content: record.notes || '',
+    });
+    setIsEditReportDialogOpen(true);
+  };
+
+  const handleUpdateReport = async () => {
+    if (!editingReport) return;
+    await updateReportRecord(editingReport.id, {
+      report_date: new Date(editReportForm.report_date).toISOString(),
+      title: editReportForm.title,
+      content: editReportForm.content,
+    });
+    setIsEditReportDialogOpen(false);
+    setEditingReport(null);
+  };
+
+  const handleDeleteClick = async (id: string) => {
+    if (window.confirm("Tem certeza de que deseja excluir este relatório? Esta ação não pode ser desfeita.")) {
+      await deleteReportRecord(id);
+    }
   };
 
   const classesOnly = classHistory.filter(record => record.status !== 'report');
@@ -282,9 +332,29 @@ export const StudentHistory = ({ studentId, studentName }: StudentHistoryProps) 
               <div key={record.id} className="p-4 bg-muted/30 border border-border/50 rounded-xl hover:border-primary/20 transition-all duration-200">
                 <div className="flex justify-between items-start gap-2 flex-wrap mb-2">
                   <h5 className="font-semibold text-sm text-foreground">{record.topic || "Relatório Pedagógico"}</h5>
-                  <span className="text-xs text-muted-foreground font-medium">
-                    {format(new Date(record.class_date), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
-                  </span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-xs text-muted-foreground font-medium">
+                      {format(new Date(record.class_date), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
+                    </span>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-6 w-6 p-0 hover:bg-muted rounded-full">
+                          <MoreVertical className="h-3.5 w-3.5 text-muted-foreground" />
+                          <span className="sr-only">Menu</span>
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="rounded-xl border border-border/50 shadow-soft">
+                        <DropdownMenuItem onClick={() => handleEditClick(record)} className="text-xs flex items-center gap-1.5 cursor-pointer rounded-lg">
+                          <Pencil className="h-3 w-3" />
+                          Editar
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleDeleteClick(record.id)} className="text-xs flex items-center gap-1.5 text-destructive focus:text-destructive cursor-pointer rounded-lg">
+                          <Trash2 className="h-3 w-3" />
+                          Excluir
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
                 </div>
                 <p className="text-xs text-muted-foreground whitespace-pre-wrap leading-relaxed bg-card/55 p-3 rounded-lg border border-border/40">
                   {record.notes}
@@ -294,6 +364,51 @@ export const StudentHistory = ({ studentId, studentName }: StudentHistoryProps) 
           )}
         </div>
       </Card>
+
+      {/* Edit Report Dialog */}
+      <Dialog open={isEditReportDialogOpen} onOpenChange={setIsEditReportDialogOpen}>
+        <DialogContent className="max-w-md rounded-2xl border-border/50">
+          <DialogHeader>
+            <DialogTitle>Editar Relatório</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
+            <div>
+              <Label htmlFor="edit_report_date">Data do Relatório</Label>
+              <Input
+                id="edit_report_date"
+                type="date"
+                value={editReportForm.report_date}
+                onChange={(e) => setEditReportForm({ ...editReportForm, report_date: e.target.value })}
+                className="rounded-xl"
+              />
+            </div>
+            <div>
+              <Label htmlFor="edit_report_title">Título / Assunto</Label>
+              <Input
+                id="edit_report_title"
+                value={editReportForm.title}
+                onChange={(e) => setEditReportForm({ ...editReportForm, title: e.target.value })}
+                placeholder="Ex: Evolução da Pronúncia"
+                className="rounded-xl"
+              />
+            </div>
+            <div>
+              <Label htmlFor="edit_report_content">Conteúdo do Relatório</Label>
+              <Textarea
+                id="edit_report_content"
+                value={editReportForm.content}
+                onChange={(e) => setEditReportForm({ ...editReportForm, content: e.target.value })}
+                placeholder="Notas sobre o desempenho do aluno..."
+                rows={4}
+                className="rounded-xl resize-none text-sm leading-relaxed"
+              />
+            </div>
+            <Button onClick={handleUpdateReport} className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-semibold rounded-xl text-xs py-4 shadow-soft">
+              Salvar Alterações
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Payment History */}
       <Card className="p-4 md:p-6 shadow-card">
