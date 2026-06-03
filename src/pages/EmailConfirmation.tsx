@@ -4,7 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { CheckCircle, XCircle, Loader2, Home } from "lucide-react";
+import { CheckCircle, XCircle, Loader2, Home, MailOpen } from "lucide-react";
+import { Logo } from "@/components/ui/logo";
 
 const EmailConfirmation = () => {
   const [loading, setLoading] = useState(true);
@@ -50,73 +51,79 @@ const EmailConfirmation = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-red-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center p-4">
-      {/* American flag inspired background */}
-      <div className="absolute inset-0 opacity-5">
-        <div className="h-full w-full bg-gradient-to-r from-blue-600 via-white to-red-600"></div>
-      </div>
+    <div className="min-h-screen bg-background flex items-center justify-center p-4 relative overflow-hidden">
       
-      <Card className="w-full max-w-md relative z-10 shadow-lg">
-        <CardHeader className="text-center">
-          <div className="mx-auto mb-4">
-            <div className="w-16 h-16 bg-gradient-primary rounded-full flex items-center justify-center">
-              <span className="text-2xl font-bold text-white">S</span>
+      {/* Decorative Orange Glow ambient spots */}
+      <div className="absolute -bottom-24 -left-24 w-96 h-96 rounded-full bg-primary/10 blur-[100px] pointer-events-none" />
+      <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-primary/10 blur-[100px] pointer-events-none" />
+      
+      <Card className="w-full max-w-md relative z-10 shadow-elegant border-border/50 rounded-2xl bg-card/60 backdrop-blur-md">
+        <CardHeader className="text-center pb-4 space-y-3">
+          <div className="mx-auto flex justify-center">
+            <div className="p-3.5 bg-primary/10 rounded-2xl border border-primary/20 shadow-soft">
+              <Logo className="w-10 h-10" />
             </div>
           </div>
-          <CardTitle className="text-2xl bg-gradient-primary bg-clip-text text-transparent">
-            SpeakBoard
-          </CardTitle>
-          <CardDescription>
-            Confirmação de Email
-          </CardDescription>
+          <div>
+            <CardTitle className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+              SpeakBoard
+            </CardTitle>
+            <CardDescription className="text-xs text-muted-foreground mt-1.5 uppercase font-bold tracking-wider">
+              Confirmação de Conta
+            </CardDescription>
+          </div>
         </CardHeader>
         
         <CardContent className="space-y-4">
           {loading && (
-            <div className="text-center py-8">
-              <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-primary" />
-              <p className="text-muted-foreground">Confirmando seu email...</p>
+            <div className="text-center py-8 space-y-4">
+              <Loader2 className="w-8 h-8 animate-spin mx-auto text-primary" />
+              <p className="text-xs font-semibold text-muted-foreground">Validando seu link de confirmação...</p>
             </div>
           )}
 
           {success && (
-            <>
-              <Alert className="border-success bg-success/10">
-                <CheckCircle className="h-4 w-4 text-success" />
-                <AlertDescription className="text-success">
-                  Email confirmado com sucesso! Sua conta está ativa.
-                </AlertDescription>
+            <div className="space-y-5 py-2">
+              <Alert className="border-success/20 bg-success/10 text-success rounded-xl p-3.5">
+                <div className="flex gap-2.5 items-start">
+                  <CheckCircle className="h-5 w-5 text-success flex-shrink-0" />
+                  <AlertDescription className="text-xs font-medium leading-relaxed text-success">
+                    Seu endereço de e-mail foi verificado com sucesso! Sua conta agora está ativa e pronta para uso.
+                  </AlertDescription>
+                </div>
               </Alert>
               
               <Button 
                 onClick={handleGoHome}
                 variant="gradient"
-                className="w-full"
+                className="w-full h-11 rounded-xl text-xs py-4 font-bold shadow-soft"
               >
                 <Home className="w-4 h-4 mr-2" />
-                Ir para a Plataforma
+                Acessar Plataforma
               </Button>
-            </>
+            </div>
           )}
 
           {error && (
-            <>
-              <Alert variant="destructive">
-                <XCircle className="h-4 w-4" />
-                <AlertDescription>
-                  {error}
-                </AlertDescription>
+            <div className="space-y-5 py-2">
+              <Alert variant="destructive" className="bg-destructive/10 border-destructive/20 text-destructive rounded-xl p-3.5 animate-fade-in">
+                <div className="flex gap-2.5 items-start">
+                  <XCircle className="h-5 w-5 text-destructive flex-shrink-0" />
+                  <AlertDescription className="text-xs font-medium leading-relaxed">
+                    {error}
+                  </AlertDescription>
+                </div>
               </Alert>
               
               <Button 
                 onClick={handleGoHome}
                 variant="outline"
-                className="w-full"
+                className="w-full h-11 rounded-xl text-xs py-4"
               >
                 <Home className="w-4 h-4 mr-2" />
                 Voltar ao Início
               </Button>
-            </>
+            </div>
           )}
         </CardContent>
       </Card>
