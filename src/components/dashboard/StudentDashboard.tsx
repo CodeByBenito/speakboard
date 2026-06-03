@@ -15,6 +15,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
+import { parseLocalDate } from "@/lib/utils";
 
 export const StudentDashboard = () => {
   const { students, loading, addStudent, updateStudent, deleteStudent, stats, refetch } = useStudents();
@@ -254,7 +255,7 @@ export const StudentDashboard = () => {
                           <Calendar className="w-3.5 h-3.5 text-primary flex-shrink-0" />
                           <span className="truncate">
                             {s.nextClassDate 
-                              ? format(new Date(s.nextClassDate), "dd/MM/yy") 
+                              ? format(parseLocalDate(s.nextClassDate), "dd/MM/yy") 
                               : "Sem agendamento"}
                           </span>
                         </div>

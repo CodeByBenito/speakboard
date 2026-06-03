@@ -10,6 +10,7 @@ import { useStudentHistory } from '@/hooks/useStudentHistory';
 import { History, BookOpen, DollarSign, Calendar, FileText, Plus } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { parseLocalDate } from '@/lib/utils';
 
 interface StudentHistoryProps {
   studentId: string;
@@ -399,7 +400,7 @@ export const StudentHistory = ({ studentId, studentName }: StudentHistoryProps) 
                   </p>
                   {record.due_date && (
                     <p className="text-xs text-muted-foreground">
-                      Vencimento: {format(new Date(record.due_date), "dd/MM/yyyy")}
+                      Vencimento: {format(parseLocalDate(record.due_date), "dd/MM/yyyy")}
                     </p>
                   )}
                   {record.notes && (

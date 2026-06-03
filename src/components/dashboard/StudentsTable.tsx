@@ -23,6 +23,7 @@ import { Edit, Trash2, Search, Filter, History } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { StudentHistory } from "./StudentHistory";
+import { parseLocalDate } from "@/lib/utils";
 
 interface StudentsTableProps {
   students: StudentDisplay[];
@@ -146,7 +147,7 @@ export const StudentsTable = ({ students, onEdit, onDelete, hideFilters = false 
                       </TableCell>
                       <TableCell>
                         {student.nextClassDate 
-                          ? new Date(student.nextClassDate).toLocaleDateString('pt-BR')
+                          ? parseLocalDate(student.nextClassDate).toLocaleDateString('pt-BR')
                           : "Não agendada"
                         }
                       </TableCell>
@@ -235,7 +236,7 @@ export const StudentsTable = ({ students, onEdit, onDelete, hideFilters = false 
                         <span className="text-muted-foreground">Próxima Aula:</span>
                         <span className="font-medium">
                           {student.nextClassDate 
-                            ? new Date(student.nextClassDate).toLocaleDateString('pt-BR')
+                            ? parseLocalDate(student.nextClassDate).toLocaleDateString('pt-BR')
                             : "Não agendada"
                           }
                         </span>

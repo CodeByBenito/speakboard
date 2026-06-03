@@ -39,6 +39,8 @@ import {
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { toast } from "sonner";
+import { parseLocalDate } from "@/lib/utils";
+
 
 interface CrmSidebarProps {
   student?: StudentDisplay;
@@ -286,7 +288,7 @@ export const CrmSidebar = ({
     // Global next classes
     const upcomingLessons = students
       .filter(s => s.nextClassDate)
-      .sort((a, b) => new Date(a.nextClassDate!).getTime() - new Date(b.nextClassDate!).getTime())
+      .sort((a, b) => parseLocalDate(a.nextClassDate!).getTime() - parseLocalDate(b.nextClassDate!).getTime())
       .slice(0, 3);
 
     return (
@@ -391,7 +393,7 @@ export const CrmSidebar = ({
                   </div>
                   <div className="text-right">
                     <span className="text-[10px] font-medium bg-muted px-2 py-0.5 rounded-full block border border-border/50">
-                      {s.nextClassDate ? format(new Date(s.nextClassDate), "dd/MM") : ""}
+                      {s.nextClassDate ? format(parseLocalDate(s.nextClassDate), "dd/MM") : ""}
                     </span>
                   </div>
                 </div>
@@ -528,7 +530,7 @@ export const CrmSidebar = ({
           <div>
             <div className="flex items-center gap-2 text-xs font-semibold text-foreground">
               <Calendar className="w-3.5 h-3.5 text-primary" />
-              {format(new Date(student.nextClassDate), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
+              {format(parseLocalDate(student.nextClassDate), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
             </div>
             {student.nextLessonTopic && (
               <div className="mt-2 text-xs text-muted-foreground flex items-start gap-1.5 bg-card/60 p-2.5 rounded-lg border border-border/50">
@@ -656,7 +658,7 @@ export const CrmSidebar = ({
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="class-notes">Observações de Progresso</Label>
+              <Label htmlFor="class-notes">Observações da Aula</Label>
               <Textarea 
                 id="class-notes" 
                 placeholder="Como foi o desempenho do aluno? Algum ponto a revisar?"
