@@ -20,9 +20,7 @@ import {
   Calendar, 
   Shield, 
   Database,
-  CheckCircle,
-  TrendingUp,
-  FileText
+  CheckCircle
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useStudents } from "@/hooks/useStudents";

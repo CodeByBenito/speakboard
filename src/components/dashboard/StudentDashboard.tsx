@@ -25,16 +25,18 @@ export const StudentDashboard = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState<StudentDisplay | undefined>();
   const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
+  const [hasInitiallySelected, setHasInitiallySelected] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
   const [searchTerm, setSearchTerm] = useState("");
   const [levelFilter, setLevelFilter] = useState<'all' | 'Iniciante' | 'Intermediário' | 'Avançado'>('all');
 
   // Select first student by default on desktop once loaded
   useEffect(() => {
-    if (students.length > 0 && !selectedStudentId && window.innerWidth >= 768) {
+    if (students.length > 0 && !hasInitiallySelected && window.innerWidth >= 768) {
       setSelectedStudentId(students[0].id);
+      setHasInitiallySelected(true);
     }
-  }, [students, selectedStudentId]);
+  }, [students, hasInitiallySelected]);
 
   const handleAddStudent = () => {
     setSelectedStudent(undefined);

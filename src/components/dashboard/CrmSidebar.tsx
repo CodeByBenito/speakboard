@@ -23,16 +23,11 @@ import {
 import { 
   Calendar, 
   DollarSign, 
-  Clock, 
   Plus, 
   Edit, 
   Trash2, 
-  User, 
   BookOpen, 
-  CheckCircle,
-  AlertTriangle,
   ChevronRight,
-  TrendingUp,
   FileText,
   Activity
 } from "lucide-react";
