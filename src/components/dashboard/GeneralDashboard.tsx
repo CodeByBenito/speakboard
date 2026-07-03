@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useDashboard } from '@/hooks/useDashboard';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -9,8 +10,11 @@ import {
   Target,
   AlertCircle,
   Loader2,
+  LayoutDashboard,
 } from 'lucide-react';
 import { CLASS_STATUS_LABELS, normalizeClassStatus } from '@/types/Session';
+import { cn } from '@/lib/utils';
+import { StudentDashboard } from './StudentDashboard';
 
 const StatBox = ({
   icon,
@@ -40,6 +44,7 @@ const StatBox = ({
 
 export const GeneralDashboard = () => {
   const { data, loading } = useDashboard();
+  const [activeTab, setActiveTab] = useState<'overview' | 'students'>('overview');
 
   return (
     <div className="p-4 md:p-8 w-full max-w-none px-4 md:px-10 space-y-8 animate-fade-in">
@@ -72,7 +77,37 @@ export const GeneralDashboard = () => {
         )}
       </div>
 
-      {loading ? (
+      {/* Visual Toggles (Abas) */}
+      <div className="flex items-center gap-1.5 rounded-xl border border-border/40 p-1.5 bg-card/45 backdrop-blur-md shadow-soft w-fit">
+        <button
+          onClick={() => setActiveTab('overview')}
+          className={cn(
+            "px-4 py-2 rounded-lg text-xs font-bold transition-all duration-300 flex items-center gap-2",
+            activeTab === 'overview'
+              ? "bg-primary text-white shadow-soft scale-105"
+              : "text-muted-foreground hover:text-foreground"
+          )}
+        >
+          <LayoutDashboard className="w-4 h-4" />
+          Visão Geral
+        </button>
+        <button
+          onClick={() => setActiveTab('students')}
+          className={cn(
+            "px-4 py-2 rounded-lg text-xs font-bold transition-all duration-300 flex items-center gap-2",
+            activeTab === 'students'
+              ? "bg-primary text-white shadow-soft scale-105"
+              : "text-muted-foreground hover:text-foreground"
+          )}
+        >
+          <Users className="w-4 h-4" />
+          Gestão de Alunos (CRM)
+        </button>
+      </div>
+
+      {activeTab === 'students' ? (
+        <StudentDashboard />
+      ) : loading ? (
         <div className="flex flex-col items-center justify-center p-20 space-y-4">
           <Loader2 className="w-10 h-10 animate-spin text-primary" />
           <p className="text-xs font-semibold text-muted-foreground">Carregando painel...</p>
@@ -184,11 +219,12 @@ export const GeneralDashboard = () => {
                       <div>
                         <p className="text-sm font-bold text-foreground">{c.student_name}</p>
                         <p className="text-xs text-muted-foreground font-medium mt-1">
-                          {c.objetivo || 'Ciclo em andamento'}
+                          Ciclo termina em{' '}
+                          {new Date(c.end_date + 'T00:00:00').toLocaleDateString('pt-BR')}
                         </p>
                       </div>
-                      <Badge variant="outline" className="rounded-lg font-bold text-[10px]">
-                        {new Date(c.checkpoint_date + 'T00:00:00').toLocaleDateString('pt-BR')}
+                      <Badge variant="outline" className="rounded-lg font-bold text-[10px] border-border/55">
+                        Foco: {c.focus}
                       </Badge>
                     </li>
                   ))}
@@ -205,19 +241,19 @@ export const GeneralDashboard = () => {
             </div>
             {data.financePending.length === 0 ? (
               <div className="text-center py-10 bg-muted/20 border border-dashed rounded-2xl text-xs text-muted-foreground font-medium">
-                Nenhuma pendência financeira pendente. 🎉
+                Nenhuma pendência financeira.
               </div>
             ) : (
               <ul className="space-y-3">
-                {data.financePending.map((f, i) => (
+                {data.financePending.map((f) => (
                   <li
-                    key={i}
+                    key={f.id}
                     className="flex items-center justify-between rounded-xl border border-border/40 bg-muted/20 p-4 transition-all duration-300 hover:bg-muted/40"
                   >
                     <div>
                       <p className="text-sm font-bold text-foreground">{f.student_name}</p>
                       {f.payment_due_date && (
-                        <p className="text-xs text-muted-foreground font-medium mt-1">
+                        <p className="text-xs text-muted-foreground font-semibold mt-1">
                           Vence em{' '}
                           {new Date(f.payment_due_date + 'T00:00:00').toLocaleDateString('pt-BR')}
                         </p>

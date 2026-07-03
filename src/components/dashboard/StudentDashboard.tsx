@@ -100,43 +100,9 @@ export const StudentDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col md:flex-row">
+    <div className="w-full flex flex-col md:flex-row gap-6 animate-scale-in">
       {/* Left Main Section */}
-      <div className="flex-1 p-4 md:p-8 space-y-6 overflow-y-auto max-h-screen">
-        {/* Top welcome banner */}
-        <div className="relative rounded-3xl overflow-hidden p-6 md:p-8 bg-gradient-hero text-white shadow-medium flex flex-col md:flex-row items-center justify-between gap-6 border-0">
-          <div className="space-y-2 text-center md:text-left z-10">
-            <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight">
-              Olá, {profile?.displayName || "Professor"}! 👋
-            </h2>
-            <p className="text-sm text-white/90 max-w-md">
-              Acompanhe o desenvolvimento pedagógico, controle frequências e gerencie as mensalidades dos seus alunos em um só lugar.
-            </p>
-            <div className="pt-2 flex flex-wrap gap-2 justify-center md:justify-start">
-              <Badge className="bg-white/20 hover:bg-white/30 text-white border-0 py-1 px-3">
-                {stats.totalStudents} Alunos Cadastrados
-              </Badge>
-              <Badge className="bg-white/20 hover:bg-white/30 text-white border-0 py-1 px-3">
-                {stats.totalCompletedClasses} Aulas Ministradas
-              </Badge>
-            </div>
-          </div>
-          <div className="flex-shrink-0 flex gap-2 z-10">
-            <Button 
-              onClick={refetch} 
-              variant="secondary"
-              className="bg-white/10 text-white hover:bg-white/25 border-0 font-semibold rounded-xl px-4 py-5"
-            >
-              <RefreshCw className="w-4 h-4" />
-            </Button>
-            <Button 
-              onClick={handleAddStudent} 
-              className="bg-white text-primary hover:bg-white/90 shadow-soft font-bold rounded-xl px-5 py-5"
-            >
-              <Plus className="w-4 h-4 mr-2" /> Novo Aluno
-            </Button>
-          </div>
-        </div>
+      <div className="flex-1 space-y-6">
 
         {/* Filter and Search Bar */}
         <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
@@ -188,6 +154,13 @@ export const StudentDashboard = () => {
                 <List className="w-4 h-4" />
               </button>
             </div>
+
+            <Button
+              onClick={handleAddStudent}
+              className="rounded-xl h-9 text-xs font-bold shadow-soft px-4 shrink-0"
+            >
+              <Plus className="w-4 h-4 mr-1.5" /> Novo Aluno
+            </Button>
           </div>
         </div>
 

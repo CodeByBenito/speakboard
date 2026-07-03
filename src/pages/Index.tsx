@@ -6,7 +6,6 @@ import { Logo } from "@/components/ui/logo";
 import { LogOut, Shield, User, Users, DollarSign, BookOpen, LayoutDashboard, ClipboardList, Library, Users2 } from "lucide-react";
 import { AdminDashboard } from "@/components/admin/AdminDashboard";
 import { GeneralDashboard } from "@/components/dashboard/GeneralDashboard";
-import { StudentDashboard } from "@/components/dashboard/StudentDashboard";
 import { ProgressGuide } from "@/components/progress/ProgressGuide";
 import { ClassBoard } from "@/components/board/ClassBoard";
 import { ContentLibrary } from "@/components/library/ContentLibrary";
@@ -15,7 +14,7 @@ import { FinancialDashboard } from "@/components/finance/FinancialDashboard";
 import { UserProfile } from "@/components/profile/UserProfile";
 import { toast } from "sonner";
 
-type ViewKey = 'dashboard' | 'students' | 'progress' | 'board' | 'library' | 'finance' | 'profile' | 'team' | 'admin';
+type ViewKey = 'dashboard' | 'progress' | 'board' | 'library' | 'finance' | 'profile' | 'team' | 'admin';
 
 const Index = () => {
   const { signOut } = useAuth();
@@ -44,7 +43,6 @@ const Index = () => {
 
   const navItems: { key: ViewKey; label: string; icon: JSX.Element }[] = [
     { key: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard className="w-5 h-5" /> },
-    { key: 'students', label: 'Alunos', icon: <Users className="w-5 h-5" /> },
     { key: 'progress', label: 'Progresso', icon: <BookOpen className="w-5 h-5" /> },
     { key: 'board', label: 'Aulas', icon: <ClipboardList className="w-5 h-5" /> },
     { key: 'library', label: 'Biblioteca', icon: <Library className="w-5 h-5" /> },
@@ -121,7 +119,6 @@ const Index = () => {
       <div className="flex-1 flex flex-col min-h-screen pb-16 md:pb-0 overflow-x-hidden">
         <div className="flex-1">
           {activeView === 'dashboard' && <GeneralDashboard />}
-          {activeView === 'students' && <StudentDashboard />}
           {activeView === 'progress' && <ProgressGuide />}
           {activeView === 'board' && <ClassBoard />}
           {activeView === 'library' && <ContentLibrary />}
