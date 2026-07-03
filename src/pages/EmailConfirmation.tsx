@@ -51,21 +51,21 @@ const EmailConfirmation = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4 relative overflow-hidden select-none">
       
       {/* Decorative Orange Glow ambient spots */}
-      <div className="absolute -bottom-24 -left-24 w-96 h-96 rounded-full bg-primary/10 blur-[100px] pointer-events-none" />
-      <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-primary/10 blur-[100px] pointer-events-none" />
+      <div className="absolute -bottom-32 -left-32 w-[400px] h-[400px] rounded-full bg-primary/10 blur-[100px] pointer-events-none animate-fade-in" />
+      <div className="absolute -top-32 -right-32 w-[400px] h-[400px] rounded-full bg-primary/10 blur-[100px] pointer-events-none animate-fade-in" />
       
-      <Card className="w-full max-w-md relative z-10 shadow-elegant border-border/50 rounded-2xl bg-card/60 backdrop-blur-md">
+      <Card className="w-full max-w-md relative z-10 glass-panel shadow-elegant border-border/40 rounded-3xl animate-slide-in-up">
         <CardHeader className="text-center pb-4 space-y-3">
           <div className="mx-auto flex justify-center">
-            <div className="p-3.5 bg-primary/10 rounded-2xl border border-primary/20 shadow-soft">
+            <div className="p-3 bg-primary/10 rounded-2xl border border-primary/20 shadow-soft animate-glow-pulse">
               <Logo className="w-10 h-10" />
             </div>
           </div>
           <div>
-            <CardTitle className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+            <CardTitle className="text-2xl font-black bg-gradient-primary bg-clip-text text-transparent tracking-tight">
               SpeakBoard
             </CardTitle>
             <CardDescription className="text-xs text-muted-foreground mt-1.5 uppercase font-bold tracking-wider">
@@ -83,7 +83,7 @@ const EmailConfirmation = () => {
           )}
 
           {success && (
-            <div className="space-y-5 py-2">
+            <div className="space-y-5 py-2 animate-scale-in">
               <Alert className="border-success/20 bg-success/10 text-success rounded-xl p-3.5">
                 <div className="flex gap-2.5 items-start">
                   <CheckCircle className="h-5 w-5 text-success flex-shrink-0" />
@@ -96,7 +96,7 @@ const EmailConfirmation = () => {
               <Button 
                 onClick={handleGoHome}
                 variant="gradient"
-                className="w-full h-11 rounded-xl text-xs py-4 font-bold shadow-soft"
+                className="w-full h-11 rounded-xl text-xs py-4 font-bold shadow-soft hover-lift"
               >
                 <Home className="w-4 h-4 mr-2" />
                 Acessar Plataforma
@@ -105,8 +105,8 @@ const EmailConfirmation = () => {
           )}
 
           {error && (
-            <div className="space-y-5 py-2">
-              <Alert variant="destructive" className="bg-destructive/10 border-destructive/20 text-destructive rounded-xl p-3.5 animate-fade-in">
+            <div className="space-y-5 py-2 animate-scale-in">
+              <Alert variant="destructive" className="bg-destructive/10 border-destructive/20 text-destructive rounded-xl p-3.5">
                 <div className="flex gap-2.5 items-start">
                   <XCircle className="h-5 w-5 text-destructive flex-shrink-0" />
                   <AlertDescription className="text-xs font-medium leading-relaxed">
@@ -118,7 +118,7 @@ const EmailConfirmation = () => {
               <Button 
                 onClick={handleGoHome}
                 variant="outline"
-                className="w-full h-11 rounded-xl text-xs py-4"
+                className="w-full h-11 rounded-xl text-xs py-4 border-primary/20 hover:bg-primary/5 hover:text-primary hover-lift"
               >
                 <Home className="w-4 h-4 mr-2" />
                 Voltar ao Início

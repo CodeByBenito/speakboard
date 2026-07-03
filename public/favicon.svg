@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <linearGradient id="sb-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ff6600" />
+      <stop offset="100%" stop-color="#ff4c1a" />
+    </linearGradient>
+  </defs>
+  <!-- Transparent background, rounded squircle with neon orange gradient -->
+  <rect x="32" y="32" width="448" height="448" rx="110" fill="url(#sb-grad)" />
+  <!-- Icon text "SB" in white with strong, modern font -->
+  <text x="50%" y="54%" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-weight="900" font-size="220" fill="#ffffff" text-anchor="middle" dominant-baseline="middle" letter-spacing="-0.05em">SB</text>
+</svg>

@@ -22,6 +22,8 @@ import {
   tipoLabel,
 } from '@/types/Content';
 import { ContentDialog } from './ContentDialog';
+import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 
 export const ContentLibrary = () => {
   const { user } = useAuth();
@@ -109,33 +111,58 @@ export const ContentLibrary = () => {
       </div>
 
       {loading ? (
-        <div className="text-sm text-muted-foreground">Carregando...</div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 animate-fade-in">
+          {[...Array(6)].map((_, i) => (
+            <Card key={i} className="p-5 space-y-4 border-border/40 bg-card/25 backdrop-blur-sm animate-pulse rounded-2xl">
+              <div className="h-4 bg-muted rounded w-2/3"></div>
+              <div className="flex gap-1.5">
+                <div className="h-5 bg-muted rounded w-16"></div>
+                <div className="h-5 bg-muted rounded w-16"></div>
+              </div>
+              <div className="h-12 bg-muted rounded w-full"></div>
+            </Card>
+          ))}
+        </div>
       ) : filtered.length === 0 ? (
-        <Card className="p-10 text-center text-muted-foreground">
-          Nenhum conteúdo encontrado. Adicione o primeiro material da biblioteca.
-        </Card>
+        <div className="flex flex-col items-center justify-center p-12 border border-dashed border-border/50 rounded-3xl bg-muted/10 text-muted-foreground text-center animate-scale-in">
+          <Library className="w-12 h-12 text-muted-foreground/30 mb-3" />
+          <p className="text-sm font-semibold">Nenhum material encontrado</p>
+          <p className="text-xs text-muted-foreground mt-1 max-w-xs">Use a barra de filtros para redefinir sua busca ou crie um novo material.</p>
+          <Button onClick={openNew} size="sm" className="mt-4">
+            <Plus className="w-3.5 h-3.5 mr-1" /> Adicionar Material
+          </Button>
+        </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {filtered.map((c) => (
-            <Card key={c.id} className="p-4 space-y-3 flex flex-col">
-              <div className="flex items-start justify-between gap-2">
-                <h3 className="font-semibold text-sm leading-snug">{c.titulo}</h3>
+            <Card key={c.id} className="p-5 space-y-4 flex flex-col border-border/50 bg-card/45 backdrop-blur-sm shadow-card hover-lift hover:border-primary/30 hover:shadow-medium transition-all duration-300 rounded-2xl animate-scale-in">
+              <div className="flex items-start justify-between gap-2.5">
+                <h3 className="font-bold text-sm text-foreground leading-snug group-hover:text-primary transition-colors flex-1">{c.titulo}</h3>
                 {canManage(c) && (
                   <div className="flex gap-1 shrink-0">
                     <Button
                       size="icon"
                       variant="ghost"
-                      className="h-7 w-7"
+                      className="h-7 w-7 hover:bg-muted"
                       onClick={() => openEdit(c)}
                     >
-                      <Pencil className="w-3.5 h-3.5" />
+                      <Pencil className="w-3.5 h-3.5 text-muted-foreground hover:text-foreground" />
                     </Button>
                     <Button
                       size="icon"
                       variant="ghost"
-                      className="h-7 w-7 text-destructive"
+                      className="h-7 w-7 text-destructive hover:bg-destructive/10 hover:text-destructive"
                       onClick={() => {
-                        if (window.confirm('Remover este conteúdo?')) deleteContent(c.id);
+                        toast.warning('Deseja excluir este material?', {
+                          description: 'Esta ação removerá o material permanentemente da biblioteca.',
+                          action: {
+                            label: 'Excluir',
+                            onClick: () => {
+                              deleteContent(c.id);
+                              toast.success('Material removido!');
+                            }
+                          }
+                        });
                       }}
                     >
                       <Trash2 className="w-3.5 h-3.5" />
@@ -145,13 +172,18 @@ export const ContentLibrary = () => {
               </div>
 
               <div className="flex flex-wrap gap-1.5">
-                <Badge variant="secondary">{tipoLabel(c.tipo)}</Badge>
-                <Badge variant="outline">{c.nivel}</Badge>
-                {c.tema && <Badge variant="outline">{c.tema}</Badge>}
+                <Badge variant="secondary" className="rounded-lg text-[9px] font-bold uppercase tracking-wider">{tipoLabel(c.tipo)}</Badge>
+                <Badge variant="outline" className={cn(
+                  "rounded-lg text-[9px] font-bold uppercase",
+                  c.nivel === 'Iniciante' ? 'border-warning/30 text-warning bg-warning/5' :
+                  c.nivel === 'Intermediário' ? 'border-primary/30 text-primary bg-primary/5' :
+                  'border-success/30 text-success bg-success/5'
+                )}>{c.nivel}</Badge>
+                {c.tema && <Badge variant="outline" className="rounded-lg text-[9px] font-bold text-muted-foreground">{c.tema}</Badge>}
               </div>
 
               {c.descricao && (
-                <p className="text-xs text-muted-foreground flex-1">{c.descricao}</p>
+                <p className="text-xs text-muted-foreground flex-1 leading-relaxed mt-1">{c.descricao}</p>
               )}
 
               {c.link && (
@@ -159,7 +191,7 @@ export const ContentLibrary = () => {
                   href={c.link}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-xs text-primary hover:underline mt-auto"
+                  className="inline-flex items-center gap-1.5 text-xs text-primary hover:underline hover:text-primary-glow font-bold mt-auto pt-2 hover-lift"
                 >
                   <ExternalLink className="w-3.5 h-3.5" /> Abrir material
                 </a>

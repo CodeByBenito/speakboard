@@ -15,6 +15,7 @@ import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { parseLocalDate } from "@/lib/utils";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
 
 export const StudentDashboard = () => {
   const { students, loading, addStudent, updateStudent, deleteStudent, stats, refetch } = useStudents();
@@ -29,6 +30,16 @@ export const StudentDashboard = () => {
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
   const [searchTerm, setSearchTerm] = useState("");
   const [levelFilter, setLevelFilter] = useState<'all' | 'Iniciante' | 'Intermediário' | 'Avançado'>('all');
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   // Select first student by default on desktop once loaded
   useEffect(() => {
@@ -282,25 +293,44 @@ export const StudentDashboard = () => {
         </div>
       </div>
 
-      {/* Right Sidebar CRM Panel */}
-      <div className="w-full md:w-[320px] xl:w-[380px] flex-shrink-0">
-        <CrmSidebar
-          student={activeCrmStudent}
-          students={students}
-          updateStudent={updateStudent}
-          onEdit={handleEditStudent}
-          onDelete={handleDeleteStudent}
-          onClearSelection={() => setSelectedStudentId(null)}
+        {/* Right Sidebar CRM Panel - Desktop Only */}
+        <div className="hidden md:block w-full md:w-[320px] xl:w-[380px] flex-shrink-0">
+          <CrmSidebar
+            student={activeCrmStudent}
+            students={students}
+            updateStudent={updateStudent}
+            onEdit={handleEditStudent}
+            onDelete={handleDeleteStudent}
+            onClearSelection={() => setSelectedStudentId(null)}
+          />
+        </div>
+
+        {/* Mobile CRM Sidebar Drawer */}
+        {isMobile && (
+          <Sheet open={!!selectedStudentId} onOpenChange={(open) => !open && setSelectedStudentId(null)}>
+            <SheetContent side="right" className="w-[88%] sm:w-[420px] p-0 border-l border-border/40 bg-card/95 backdrop-blur-xl animate-scale-in">
+              <div className="h-full">
+                <CrmSidebar
+                  student={activeCrmStudent}
+                  students={students}
+                  updateStudent={updateStudent}
+                  onEdit={handleEditStudent}
+                  onDelete={handleDeleteStudent}
+                  onClearSelection={() => setSelectedStudentId(null)}
+                  isMobile={true}
+                />
+              </div>
+            </SheetContent>
+          </Sheet>
+        )}
+
+        {/* Student Modal */}
+        <StudentModal
+          student={selectedStudent}
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          onSave={handleSaveStudent}
         />
       </div>
-
-      {/* Student Modal */}
-      <StudentModal
-        student={selectedStudent}
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-        onSave={handleSaveStudent}
-      />
-    </div>
-  );
-};
+    );
+  };

@@ -71,17 +71,23 @@ export default function ResetPassword() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-card flex items-center justify-center p-4">
-      <Card className="w-full max-w-md shadow-elegant border-border/50">
-        <CardHeader className="space-y-4 text-center">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4 relative overflow-hidden select-none">
+      {/* Decorative Orange Glow ambient spots */}
+      <div className="absolute -bottom-32 -left-32 w-[400px] h-[400px] rounded-full bg-primary/10 blur-[100px] pointer-events-none animate-fade-in" />
+      <div className="absolute -top-32 -right-32 w-[400px] h-[400px] rounded-full bg-primary/10 blur-[100px] pointer-events-none animate-fade-in" />
+
+      <Card className="w-full max-w-md relative z-10 glass-panel shadow-elegant border-border/40 rounded-3xl animate-slide-in-up">
+        <CardHeader className="space-y-4 text-center pb-4">
           <div className="flex justify-center">
-            <Logo className="w-16 h-16" />
+            <div className="p-3 bg-primary/10 rounded-2xl border border-primary/20 shadow-soft">
+              <Logo className="w-12 h-12" />
+            </div>
           </div>
           <div>
-            <CardTitle className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+            <CardTitle className="text-2xl font-black bg-gradient-primary bg-clip-text text-transparent tracking-tight">
               Redefinir Senha
             </CardTitle>
-            <CardDescription className="text-muted-foreground mt-2">
+            <CardDescription className="text-xs text-muted-foreground mt-1.5 uppercase font-bold tracking-wider">
               Digite sua nova senha abaixo
             </CardDescription>
           </div>
@@ -89,69 +95,69 @@ export default function ResetPassword() {
 
         <CardContent>
           {error && !success && (
-            <Alert variant="destructive" className="mb-4">
-              <AlertDescription>{error}</AlertDescription>
+            <Alert variant="destructive" className="mb-4 bg-destructive/10 border-destructive/20 text-destructive rounded-xl animate-fade-in">
+              <AlertDescription className="text-xs font-medium leading-relaxed">{error}</AlertDescription>
             </Alert>
           )}
 
           {success ? (
-            <div className="text-center space-y-4 py-6">
-              <CheckCircle className="w-16 h-16 text-success mx-auto" />
+            <div className="text-center space-y-4 py-6 animate-scale-in">
+              <CheckCircle className="w-16 h-16 text-success mx-auto animate-glow-pulse rounded-full" />
               <div>
-                <h3 className="text-lg font-semibold text-success">Senha redefinida!</h3>
-                <p className="text-muted-foreground mt-2">
-                  Redirecionando para o login...
+                <h3 className="text-lg font-bold text-success">Senha redefinida!</h3>
+                <p className="text-xs text-muted-foreground mt-2">
+                  Redirecionando para a tela de login...
                 </p>
               </div>
             </div>
           ) : (
             <form onSubmit={handleResetPassword} className="space-y-4">
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground" htmlFor="password">
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider" htmlFor="password">
                   Nova Senha
                 </label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input
                     id="password"
                     type={showPassword ? "text" : "password"}
                     placeholder="Digite sua nova senha"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="pl-10 pr-10 bg-secondary/50 border-border focus:border-primary"
+                    className="pl-10 pr-10 h-11 bg-muted/20 border-border/40 focus-visible:ring-primary/25 rounded-xl"
                     required
                     minLength={6}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground" htmlFor="confirmPassword">
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider" htmlFor="confirmPassword">
                   Confirmar Nova Senha
                 </label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input
                     id="confirmPassword"
                     type={showConfirmPassword ? "text" : "password"}
                     placeholder="Confirme sua nova senha"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="pl-10 pr-10 bg-secondary/50 border-border focus:border-primary"
+                    className="pl-10 pr-10 h-11 bg-muted/20 border-border/40 focus-visible:ring-primary/25 rounded-xl"
                     required
                     minLength={6}
                   />
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                   >
                     {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -160,7 +166,8 @@ export default function ResetPassword() {
 
               <Button
                 type="submit"
-                className="w-full bg-gradient-primary hover:opacity-90 text-primary-foreground shadow-soft"
+                variant="gradient"
+                className="w-full h-11 font-bold rounded-xl text-xs py-4 shadow-soft hover:shadow-medium hover-lift mt-2"
                 disabled={loading || !password || !confirmPassword}
               >
                 {loading ? "Redefinindo..." : "Redefinir Senha"}
@@ -169,7 +176,7 @@ export default function ResetPassword() {
               <Button
                 type="button"
                 variant="ghost"
-                className="w-full"
+                className="w-full h-11 rounded-xl text-xs text-muted-foreground hover:text-foreground"
                 onClick={() => navigate("/auth")}
               >
                 Voltar ao Login

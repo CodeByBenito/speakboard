@@ -34,8 +34,7 @@ import {
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { toast } from "sonner";
-import { parseLocalDate } from "@/lib/utils";
-
+import { parseLocalDate, cn } from "@/lib/utils";
 
 interface CrmSidebarProps {
   student?: StudentDisplay;
@@ -44,6 +43,7 @@ interface CrmSidebarProps {
   onEdit: (student: StudentDisplay) => void;
   onDelete: (id: string) => void;
   onClearSelection: () => void;
+  isMobile?: boolean;
 }
 
 export const CrmSidebar = ({
@@ -52,7 +52,8 @@ export const CrmSidebar = ({
   updateStudent,
   onEdit,
   onDelete,
-  onClearSelection
+  onClearSelection,
+  isMobile = false
 }: CrmSidebarProps) => {
   const { profile } = useProfile();
   const history = useStudentHistory(student?.id || "");
@@ -98,16 +99,23 @@ export const CrmSidebar = ({
     }
   };
 
-  const handleDeleteClick = async (id: string) => {
-    if (window.confirm("Tem certeza de que deseja excluir este relatório? Esta ação não pode ser desfeita.")) {
-      try {
-        await history.deleteReportRecord(id);
-        setSelectedReportToView(null);
-      } catch (error) {
-        console.error(error);
-        toast.error("Erro ao excluir relatório.");
+  const handleDeleteClick = (id: string) => {
+    toast.warning("Tem certeza de que deseja excluir este relatório?", {
+      description: "Esta ação é irreversível.",
+      action: {
+        label: "Excluir",
+        onClick: async () => {
+          try {
+            await history.deleteReportRecord(id);
+            setSelectedReportToView(null);
+            toast.success("Relatório excluído com sucesso!");
+          } catch (error) {
+            console.error(error);
+            toast.error("Erro ao excluir relatório.");
+          }
+        }
       }
-    }
+    });
   };
   
   // Form States
@@ -310,11 +318,11 @@ export const CrmSidebar = ({
   const getLevelBadgeColor = (level?: string) => {
     switch (level) {
       case "Iniciante":
-        return "bg-amber-500/10 text-amber-500 border border-amber-500/20";
+        return "bg-warning/10 text-warning border border-warning/20";
       case "Intermediário":
-        return "bg-blue-500/10 text-blue-500 border border-blue-500/20";
+        return "bg-primary/10 text-primary border border-primary/20";
       case "Avançado":
-        return "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20";
+        return "bg-success/10 text-success border border-success/20";
       default:
         return "bg-muted text-muted-foreground";
     }
@@ -334,7 +342,12 @@ export const CrmSidebar = ({
       .slice(0, 3);
 
     return (
-      <aside className="w-full flex flex-col bg-card/30 backdrop-blur-xl border-l border-border/50 h-screen sticky top-0 p-6 overflow-y-auto z-30">
+      <aside className={cn(
+        "w-full flex flex-col p-6 overflow-y-auto z-30",
+        isMobile 
+          ? "h-full" 
+          : "h-screen sticky top-0 bg-card/30 backdrop-blur-xl border-l border-border/50"
+      )}>
         {/* Header - Profile and Theme */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-3">
@@ -452,7 +465,12 @@ export const CrmSidebar = ({
   const studentReports = history.classHistory ? history.classHistory.filter(r => r.status === 'report') : [];
   
   return (
-    <aside className="w-full flex flex-col bg-card/30 backdrop-blur-xl border-l border-border/50 h-screen sticky top-0 p-6 overflow-y-auto z-30">
+    <aside className={cn(
+      "w-full flex flex-col p-6 overflow-y-auto z-30 animate-fade-in",
+      isMobile 
+        ? "h-full bg-card" 
+        : "h-screen sticky top-0 bg-card/30 backdrop-blur-xl border-l border-border/50"
+    )}>
       {/* Header - Back and Actions */}
       <div className="flex items-center justify-between mb-6">
         <Button 
