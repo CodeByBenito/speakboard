@@ -189,101 +189,216 @@ export const ProgressGuide = () => {
         </Card>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          {/* Coluna Esquerda: Ciclo e Planejamento (7 Colunas) */}
-          <div className="lg:col-span-7 space-y-6">
-            {/* Ciclo Atual */}
-            <Card className="p-6 space-y-5 border-border/40 bg-card/45 backdrop-blur-sm shadow-card rounded-2xl animate-scale-in">
-              <div className="flex items-start justify-between gap-3 border-b border-border/30 pb-4">
-                <div className="flex items-center gap-2.5">
-                  <div className="p-2 bg-primary/10 rounded-xl border border-primary/20 text-primary">
-                    <Target className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h2 className="font-bold text-sm text-foreground">Ciclo Atual (Evolution Plan)</h2>
-                    <p className="text-[10px] text-muted-foreground mt-0.5">Meta macro pedagógica deste ciclo</p>
-                  </div>
-                </div>
-                {isProfessor && (
-                  <div className="flex gap-2">
-                    {guide.activeCycle && (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="rounded-lg h-8 px-2.5 text-xs font-semibold"
-                        onClick={() => openEditCycle(guide.activeCycle!)}
-                      >
-                        <Pencil className="w-3.5 h-3.5 mr-1" /> Editar
-                      </Button>
-                    )}
-                    <Button size="sm" className="rounded-lg h-8 px-2.5 text-xs font-semibold" onClick={openNewCycle}>
-                      <Plus className="w-3.5 h-3.5 mr-1" /> Novo Ciclo
-                    </Button>
-                  </div>
-                )}
-              </div>
-
-              {guide.activeCycle ? (
-                <div className="space-y-5">
-                  <div className="bg-muted/10 border border-border/40 rounded-xl p-4">
-                    <span className="text-[9px] uppercase font-bold text-muted-foreground tracking-widest block mb-1">Objetivo Geral</span>
-                    <p className="text-xs font-bold leading-relaxed text-foreground">
-                      {guide.activeCycle.objetivo || 'Sem objetivo macro definido.'}
-                    </p>
-                  </div>
-
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between text-xs font-semibold">
-                      <span className="text-muted-foreground">
-                        Semana {guide.activeCycle.semana_atual} de {CICLO_TOTAL_SEMANAS}
-                      </span>
-                      <Badge variant="secondary" className="rounded-md font-bold uppercase text-[9px] px-2 py-0.5">
-                        {CICLO_STATUS_LABELS[guide.activeCycle.status]}
-                      </Badge>
-                    </div>
-                    <Progress
-                      value={(guide.activeCycle.semana_atual / CICLO_TOTAL_SEMANAS) * 100}
-                      className="h-2 rounded-full"
-                    />
-                  </div>
-
-                  {guide.activeCycle.habilidades_prioritarias.length > 0 && (
-                    <div className="space-y-2">
-                      <span className="text-[9px] uppercase font-bold text-muted-foreground tracking-widest block">
-                        Foco de Habilidades Prioritárias
-                      </span>
-                      <div className="flex flex-wrap gap-2">
-                        {guide.activeCycle.habilidades_prioritarias.map((h) => (
-                          <Badge key={h} variant="outline" className="rounded-lg text-[9px] font-bold border-primary/20 text-primary bg-primary/5 px-2.5 py-0.5">
-                            {habilidadeLabel(h)}
-                          </Badge>
-                        ))}
+          {/* Coluna Esquerda: Ciclos, Focos, Planner e Métricas (8 Colunas) */}
+          <div className="lg:col-span-8 space-y-6">
+            {/* Linha 1: Ciclo Atual & Próximo Foco */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Ciclo Atual */}
+              <Card className="p-6 space-y-5 border-border/40 bg-card/45 backdrop-blur-sm shadow-card rounded-2xl animate-scale-in flex flex-col justify-between">
+                <div className="space-y-4">
+                  <div className="flex items-start justify-between gap-3 border-b border-border/30 pb-4">
+                    <div className="flex items-center gap-2.5">
+                      <div className="p-2 bg-primary/10 rounded-xl border border-primary/20 text-primary">
+                        <Target className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h2 className="font-bold text-sm text-foreground">Ciclo Atual (Evolution Plan)</h2>
+                        <p className="text-[10px] text-muted-foreground mt-0.5">Meta macro pedagógica deste ciclo</p>
                       </div>
                     </div>
-                  )}
+                    {isProfessor && (
+                      <div className="flex gap-1.5 shrink-0">
+                        {guide.activeCycle && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="rounded-lg h-8 px-2 text-[10px] font-bold"
+                            onClick={() => openEditCycle(guide.activeCycle!)}
+                          >
+                            <Pencil className="w-3 h-3 mr-1" /> Editar
+                          </Button>
+                        )}
+                        <Button size="sm" className="rounded-lg h-8 px-2 text-[10px] font-bold" onClick={openNewCycle}>
+                          <Plus className="w-3 h-3 mr-1" /> Novo
+                        </Button>
+                      </div>
+                    )}
+                  </div>
 
-                  {guide.checkpointDate && (
-                    <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground border-t border-border/30 pt-3">
-                      <CalendarClock className="w-4 h-4 text-primary" />
-                      <span>Próximo Checkpoint: {new Date(guide.checkpointDate + 'T00:00:00').toLocaleDateString('pt-BR')}</span>
+                  {guide.activeCycle ? (
+                    <div className="space-y-4">
+                      <div className="bg-muted/10 border border-border/40 rounded-xl p-3.5">
+                        <span className="text-[9px] uppercase font-bold text-muted-foreground tracking-widest block mb-1">Objetivo Geral</span>
+                        <p className="text-xs font-bold leading-relaxed text-foreground">
+                          {guide.activeCycle.objetivo || 'Sem objetivo macro definido.'}
+                        </p>
+                      </div>
+
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between text-[11px] font-bold">
+                          <span className="text-muted-foreground">
+                            Semana {guide.activeCycle.semana_atual} de {CICLO_TOTAL_SEMANAS}
+                          </span>
+                          <Badge variant="secondary" className="rounded-md font-bold uppercase text-[9px] px-2 py-0.5">
+                            {CICLO_STATUS_LABELS[guide.activeCycle.status]}
+                          </Badge>
+                        </div>
+                        <Progress
+                          value={(guide.activeCycle.semana_atual / CICLO_TOTAL_SEMANAS) * 100}
+                          className="h-2 rounded-full"
+                        />
+                      </div>
+
+                      {guide.activeCycle.habilidades_prioritarias.length > 0 && (
+                        <div className="space-y-2 pt-1">
+                          <span className="text-[9px] uppercase font-bold text-muted-foreground tracking-widest block">
+                            Foco de Habilidades Prioritárias
+                          </span>
+                          <div className="flex flex-wrap gap-1.5">
+                            {guide.activeCycle.habilidades_prioritarias.map((h) => (
+                              <Badge key={h} variant="outline" className="rounded-lg text-[9px] font-bold border-primary/20 text-primary bg-primary/5 px-2 py-0.5">
+                                {habilidadeLabel(h)}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="text-xs text-muted-foreground font-semibold py-8 text-center border border-dashed rounded-xl bg-muted/10">
+                      Nenhum ciclo de evolução ativo para este aluno.
+                      {isProfessor && <p className="text-[10px] text-muted-foreground mt-1">Crie um ciclo para iniciar o cronograma.</p>}
                     </div>
                   )}
                 </div>
-              ) : (
-                <div className="text-xs text-muted-foreground font-semibold py-6 text-center border border-dashed rounded-xl bg-muted/10">
-                  Nenhum ciclo de evolução ativo para este aluno.
-                  {isProfessor && <p className="text-[10px] text-muted-foreground mt-1">Crie um ciclo para iniciar o cronograma.</p>}
+
+                {guide.checkpointDate && (
+                  <div className="flex items-center gap-2 text-[10px] font-bold text-muted-foreground border-t border-border/20 pt-3 mt-4">
+                    <CalendarClock className="w-3.5 h-3.5 text-primary" />
+                    <span>Próximo Checkpoint: {new Date(guide.checkpointDate + 'T00:00:00').toLocaleDateString('pt-BR')}</span>
+                  </div>
+                )}
+              </Card>
+
+              {/* Próximo foco */}
+              <Card className="p-6 space-y-4 border-border/40 bg-card/45 backdrop-blur-sm shadow-card rounded-2xl animate-scale-in flex flex-col justify-between">
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2.5 border-b border-border/30 pb-4">
+                    <div className="p-2 bg-primary/10 rounded-xl border border-primary/20 text-primary">
+                      <Target className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h2 className="font-bold text-sm text-foreground">Próximo Foco Pedagógico</h2>
+                      <p className="text-[10px] text-muted-foreground mt-0.5">Direcionamento prioritário</p>
+                    </div>
+                  </div>
+                  <p className="text-xs font-bold leading-relaxed text-foreground min-h-[60px] flex items-center">
+                    {guide.proximoFoco || (
+                      <span className="text-muted-foreground font-semibold italic">
+                        Nenhum foco definido ainda {isProfessor ? '(defina nas configurações do ciclo).' : '.'}
+                      </span>
+                    )}
+                  </p>
                 </div>
-              )}
-            </Card>
+                
+                <div className="flex items-center gap-2 text-[10px] font-bold text-muted-foreground border-t border-border/20 pt-3 mt-4">
+                  <CalendarClock className="w-3.5 h-3.5 text-primary" />
+                  <span>Atualizado constantemente pelo professor</span>
+                </div>
+              </Card>
+            </div>
 
             {/* Planner semanal */}
             <div className="animate-scale-in">
               <WeeklyPlannerCard cicloId={guide.activeCycle?.id ?? null} editable={isProfessor} />
             </div>
+
+            {/* Linha 3: Conquistas & Selos + Aulas Recentes */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Conquistas */}
+              <Card className="p-6 space-y-4 border-border/40 bg-card/45 backdrop-blur-sm shadow-card rounded-2xl animate-scale-in flex flex-col">
+                <div className="flex items-center gap-2.5 border-b border-border/30 pb-3">
+                  <div className="p-2 bg-yellow-500/10 rounded-xl border border-yellow-500/20 text-yellow-500">
+                    <Trophy className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h2 className="font-bold text-sm text-foreground">Conquistas & Selos</h2>
+                    <p className="text-[10px] text-muted-foreground mt-0.5">Marcos e conquistas do aluno</p>
+                  </div>
+                </div>
+                
+                <div className="flex-1 overflow-y-auto max-h-[220px] pr-1 scrollbar-thin">
+                  {guide.conquistas.length === 0 ? (
+                    <p className="text-xs text-muted-foreground font-semibold text-center py-8">
+                      Nenhuma conquista registrada neste plano ainda.
+                    </p>
+                  ) : (
+                    <ul className="space-y-2.5">
+                      {guide.conquistas.map((c) => (
+                        <li
+                          key={c.id}
+                          className="flex items-start gap-3 rounded-xl bg-yellow-500/5 border border-yellow-500/20 p-3 animate-scale-in"
+                        >
+                          <Trophy className="w-4 h-4 text-yellow-500 mt-0.5 shrink-0 animate-bounce" />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs font-bold text-foreground leading-snug">
+                              {c.observacao || 'Conquista de evolução alcançada!'}
+                            </p>
+                            <p className="text-[9px] text-muted-foreground font-semibold mt-1">
+                              {new Date(c.data + 'T00:00:00').toLocaleDateString('pt-BR')}
+                            </p>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              </Card>
+
+              {/* Aulas recentes */}
+              <Card className="p-6 space-y-4 border-border/40 bg-card/45 backdrop-blur-sm shadow-card rounded-2xl animate-scale-in flex flex-col">
+                <div className="flex items-center gap-2.5 border-b border-border/30 pb-3">
+                  <div className="p-2 bg-primary/10 rounded-xl border border-primary/20 text-primary">
+                    <BookOpen className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h2 className="font-bold text-sm text-foreground">Aulas Recentes</h2>
+                    <p className="text-[10px] text-muted-foreground mt-0.5">Últimas aulas registradas</p>
+                  </div>
+                </div>
+
+                <div className="flex-1 overflow-y-auto max-h-[220px] pr-1 scrollbar-thin">
+                  {guide.recentClasses.length === 0 ? (
+                    <p className="text-xs text-muted-foreground font-semibold text-center py-8">
+                      Nenhuma aula registrada nos logs do sistema.
+                    </p>
+                  ) : (
+                    <ul className="space-y-2">
+                      {guide.recentClasses.map((cl) => (
+                        <li
+                          key={cl.id}
+                          className="flex items-center justify-between rounded-xl border border-border/40 bg-muted/10 p-3 hover:bg-muted/15 transition-colors"
+                        >
+                          <div className="min-w-0 flex-1 pr-2">
+                            <p className="text-xs font-bold text-foreground truncate">{cl.topic || 'Aula Regular'}</p>
+                            <p className="text-[9px] text-muted-foreground font-semibold mt-0.5">
+                              {new Date(cl.class_date).toLocaleDateString('pt-BR')}
+                            </p>
+                          </div>
+                          <Badge variant="secondary" className="rounded-lg font-bold text-[8px] uppercase px-1.5 py-0.5">
+                            {cl.status}
+                          </Badge>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              </Card>
+            </div>
           </div>
 
-          {/* Coluna Direita: Níveis e Métricas (5 Colunas) */}
-          <div className="lg:col-span-5 space-y-6">
+          {/* Coluna Direita: Níveis e Feedbacks (4 Colunas) */}
+          <div className="lg:col-span-4 space-y-6">
             {/* Snapshot Nível Percebido */}
             <Card className="p-6 space-y-5 border-border/40 bg-card/45 backdrop-blur-sm shadow-card rounded-2xl animate-scale-in">
               <div className="flex items-center justify-between border-b border-border/30 pb-4">
@@ -325,91 +440,6 @@ export const ProgressGuide = () => {
               <p className="text-[10px] text-muted-foreground text-center font-medium">
                 Composição dinâmica baseada no feedback docente mais recente.
               </p>
-            </Card>
-
-            {/* Próximo foco */}
-            <Card className="p-6 space-y-3 border-border/40 bg-card/45 backdrop-blur-sm shadow-card rounded-2xl animate-scale-in">
-              <div className="flex items-center gap-2.5 border-b border-border/30 pb-3">
-                <div className="p-2 bg-primary/10 rounded-xl border border-primary/20 text-primary">
-                  <Target className="w-4 h-4" />
-                </div>
-                <h2 className="font-bold text-sm text-foreground">Próximo Foco Pedagógico</h2>
-              </div>
-              <p className="text-xs font-bold leading-relaxed text-foreground">
-                {guide.proximoFoco || (
-                  <span className="text-muted-foreground font-semibold">
-                    Nenhum foco definido ainda {isProfessor ? '(defina nas configurações do ciclo).' : '.'}
-                  </span>
-                )}
-              </p>
-            </Card>
-
-            {/* Conquistas */}
-            <Card className="p-6 space-y-4 border-border/40 bg-card/45 backdrop-blur-sm shadow-card rounded-2xl animate-scale-in">
-              <div className="flex items-center gap-2.5 border-b border-border/30 pb-3">
-                <div className="p-2 bg-yellow-500/10 rounded-xl border border-yellow-500/20 text-yellow-500">
-                  <Trophy className="w-4 h-4" />
-                </div>
-                <h2 className="font-bold text-sm text-foreground">Conquistas & Selos</h2>
-              </div>
-              {guide.conquistas.length === 0 ? (
-                <p className="text-xs text-muted-foreground font-semibold text-center py-4">
-                  Nenhuma conquista registrada neste plano ainda.
-                </p>
-              ) : (
-                <ul className="space-y-2.5">
-                  {guide.conquistas.map((c) => (
-                    <li
-                      key={c.id}
-                      className="flex items-start gap-3 rounded-xl bg-yellow-500/5 border border-yellow-500/20 p-3.5 animate-scale-in"
-                    >
-                      <Trophy className="w-4 h-4 text-yellow-500 mt-0.5 shrink-0 animate-bounce" />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs font-bold text-foreground">
-                          {c.observacao || 'Conquista de evolução alcançada!'}
-                        </p>
-                        <p className="text-[10px] text-muted-foreground font-semibold mt-1">
-                          {new Date(c.data + 'T00:00:00').toLocaleDateString('pt-BR')}
-                        </p>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </Card>
-
-            {/* Aulas recentes */}
-            <Card className="p-6 space-y-4 border-border/40 bg-card/45 backdrop-blur-sm shadow-card rounded-2xl animate-scale-in">
-              <div className="flex items-center gap-2.5 border-b border-border/30 pb-3">
-                <div className="p-2 bg-primary/10 rounded-xl border border-primary/20 text-primary">
-                  <BookOpen className="w-4 h-4" />
-                </div>
-                <h2 className="font-bold text-sm text-foreground">Aulas Recentes</h2>
-              </div>
-              {guide.recentClasses.length === 0 ? (
-                <p className="text-xs text-muted-foreground font-semibold text-center py-4">
-                  Nenhuma aula registrada nos logs do sistema.
-                </p>
-              ) : (
-                <ul className="space-y-2.5">
-                  {guide.recentClasses.map((cl) => (
-                    <li
-                      key={cl.id}
-                      className="flex items-center justify-between rounded-xl border border-border/40 bg-muted/10 p-3.5 hover:bg-muted/15 transition-colors"
-                    >
-                      <div className="min-w-0 flex-1 pr-2">
-                        <p className="text-xs font-bold text-foreground truncate">{cl.topic || 'Aula Regular'}</p>
-                        <p className="text-[10px] text-muted-foreground font-semibold mt-1">
-                          {new Date(cl.class_date).toLocaleDateString('pt-BR')}
-                        </p>
-                      </div>
-                      <Badge variant="secondary" className="rounded-lg font-bold text-[9px] uppercase px-2 py-0.5">
-                        {cl.status}
-                      </Badge>
-                    </li>
-                  ))}
-                </ul>
-              )}
             </Card>
 
             {/* Histórico Feedbacks */}
