@@ -25,6 +25,43 @@ import { SessionNoteDialog } from './SessionNoteDialog';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
+const getColTheme = (status: string) => {
+  switch (status) {
+    case 'scheduled':
+      return {
+        border: 'border-blue-500/20 focus-within:border-blue-500/40',
+        bg: 'bg-blue-500/5',
+        text: 'text-blue-500',
+        badge: 'bg-blue-500/10 text-blue-600 border-blue-500/20',
+        bar: 'bg-blue-500'
+      };
+    case 'in_progress':
+      return {
+        border: 'border-amber-500/20 focus-within:border-amber-500/40',
+        bg: 'bg-amber-500/5',
+        text: 'text-amber-500',
+        badge: 'bg-amber-500/10 text-amber-600 border-amber-500/20',
+        bar: 'bg-amber-500'
+      };
+    case 'completed':
+      return {
+        border: 'border-emerald-500/20 focus-within:border-emerald-500/40',
+        bg: 'bg-emerald-500/5',
+        text: 'text-emerald-500',
+        badge: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20',
+        bar: 'bg-emerald-500'
+      };
+    default:
+      return {
+        border: 'border-border/40',
+        bg: 'bg-muted/5',
+        text: 'text-muted-foreground',
+        badge: 'bg-muted/10 text-muted-foreground border-border/20',
+        bar: 'bg-primary'
+      };
+  }
+};
+
 interface Professor {
   user_id: string;
   name: string;
@@ -171,11 +208,12 @@ export const ClassBoard = () => {
       ) : (
         <>
           {boardView === 'kanban' && (
-            <div className="flex md:grid md:grid-cols-3 overflow-x-auto pb-4 gap-4 md:overflow-x-visible md:pb-0 scrollbar-thin">
+            <div className="flex md:grid md:grid-cols-3 overflow-x-auto pb-4 gap-6 md:overflow-x-visible md:pb-0 scrollbar-thin">
               {BOARD_COLUMNS.map((col) => {
                 const items = classes.filter(
                   (c) => normalizeClassStatus(c.status) === col.status,
                 );
+                const colTheme = getColTheme(col.status);
                 return (
                   <div
                     key={col.status}
@@ -186,20 +224,23 @@ export const ClassBoard = () => {
                     onDragLeave={() => setDragOverCol((s) => (s === col.status ? null : s))}
                     onDrop={() => onDrop(col.status)}
                     className={cn(
-                      "rounded-2xl border p-4 min-h-[350px] w-[280px] shrink-0 md:w-auto transition-all duration-300 bg-card/30 backdrop-blur-md shadow-soft flex flex-col",
+                      "rounded-2xl border p-4 min-h-[380px] w-[280px] shrink-0 md:w-auto transition-all duration-300 bg-card/25 backdrop-blur-md shadow-sm flex flex-col gap-3",
                       dragOverCol === col.status
-                        ? 'border-primary bg-primary/5 shadow-medium'
-                        : 'border-border/60'
+                        ? 'border-primary bg-primary/5 shadow-soft'
+                        : 'border-border/30'
                     )}
                   >
-                    <div className="flex items-center justify-between mb-4">
-                      <h2 className="font-bold text-sm text-foreground">{col.label}</h2>
-                      <Badge variant="secondary" className="rounded-lg font-bold text-[10px] px-2 py-0.5">
+                    <div className="flex items-center justify-between px-1">
+                      <div className="flex items-center gap-2">
+                        <div className={cn("w-2.5 h-2.5 rounded-full", colTheme.bar)} />
+                        <h2 className="font-bold text-xs text-foreground uppercase tracking-wider">{col.label}</h2>
+                      </div>
+                      <Badge variant="outline" className={cn("rounded-lg font-bold text-[10px] px-2 py-0.5 border-0", colTheme.badge)}>
                         {items.length}
                       </Badge>
                     </div>
 
-                    <div className="space-y-3 flex-1 flex flex-col">
+                    <div className="space-y-2.5 flex-1 flex flex-col">
                       {items.map((c) => (
                         <Card
                           key={c.id}
@@ -208,24 +249,25 @@ export const ClassBoard = () => {
                           onDragEnd={() => setDraggingId(null)}
                           onClick={() => openEdit(c)}
                           className={cn(
-                            "p-4 cursor-pointer border-border/55 bg-card/85 backdrop-blur-sm shadow-card hover:border-primary/40 hover:shadow-medium hover-lift transition-all duration-300 rounded-xl group flex flex-col gap-2.5",
-                            draggingId === c.id ? 'opacity-50 scale-95' : ''
+                            "relative overflow-hidden p-3.5 cursor-pointer border-border/30 bg-card/65 hover:bg-card hover:border-primary/30 shadow-sm hover:shadow-md transition-all duration-300 rounded-xl group flex flex-col gap-2",
+                            draggingId === c.id ? 'opacity-40 scale-95' : ''
                           )}
                         >
-                          <div className="flex items-start gap-2.5">
-                            <GripVertical className="w-4 h-4 text-muted-foreground mt-0.5 shrink-0 group-hover:text-primary transition-colors cursor-grab" />
+                          <div className={cn("absolute left-0 top-0 bottom-0 w-1 rounded-l-xl", colTheme.bar)} />
+                          
+                          <div className="pl-1.5 flex items-start justify-between gap-2">
                             <div className="flex-1 min-w-0">
-                              <p className="text-sm font-bold text-foreground group-hover:text-primary transition-colors truncate">
+                              <p className="text-xs font-bold text-foreground group-hover:text-primary transition-colors truncate">
                                 {c.student_name}
                               </p>
-                              <p className="text-xs text-muted-foreground font-semibold truncate mt-0.5">
+                              <p className="text-[10px] text-muted-foreground font-semibold truncate mt-0.5">
                                 {c.topic || 'Sem tema definido'}
                               </p>
                             </div>
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
-                                toast.warning('Tem certeza de que deseja remover esta aula?', {
+                                toast.warning('Deseja remover esta aula?', {
                                   description: 'Esta ação não pode ser desfeita.',
                                   action: {
                                     label: 'Remover',
@@ -236,14 +278,14 @@ export const ClassBoard = () => {
                                   }
                                 });
                               }}
-                              className="text-muted-foreground hover:text-destructive shrink-0 transition-colors p-1 rounded-md hover:bg-destructive/10"
+                              className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive shrink-0 transition-all p-1 rounded-md hover:bg-destructive/10 -mt-1 -mr-1"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
                             </button>
                           </div>
 
-                          <div className="flex items-center justify-between text-[10px] mt-1 text-muted-foreground">
-                            <span className="font-semibold bg-muted/60 px-2 py-0.5 rounded-md border border-border/50 flex items-center gap-1.5 animate-fade-in">
+                          <div className="pl-1.5 flex items-center justify-between text-[9px] text-muted-foreground">
+                            <span className="font-semibold bg-muted/40 px-2 py-0.5 rounded-md border border-border/30 flex items-center gap-1.5">
                               <CalendarDays className="w-3 h-3 text-primary" />
                               {new Date(c.class_date).toLocaleString('pt-BR', {
                                 day: '2-digit',
@@ -256,9 +298,9 @@ export const ClassBoard = () => {
                         </Card>
                       ))}
                       {items.length === 0 && (
-                        <div className="flex-1 flex flex-col items-center justify-center py-10 border border-dashed border-border/50 rounded-xl bg-muted/10 text-muted-foreground text-center">
-                          <CalendarDays className="w-8 h-8 text-muted-foreground/30 mb-2" />
-                          <p className="text-[11px] font-semibold">Sem aulas cadastradas</p>
+                        <div className="flex-1 flex flex-col items-center justify-center py-12 border border-dashed border-border/30 rounded-xl bg-muted/5 text-muted-foreground text-center">
+                          <CalendarDays className="w-6 h-6 text-muted-foreground/30 mb-2" />
+                          <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60">Sem Aulas</p>
                         </div>
                       )}
                     </div>
@@ -333,18 +375,18 @@ export const ClassBoard = () => {
                         openNewPrefilled(`${yyyy}-${mm}-${dd}T09:00:00`);
                       }}
                       className={cn(
-                        "rounded-xl border p-2 flex flex-col min-h-[100px] justify-between cursor-pointer transition-all duration-300 hover:border-primary/40 hover:bg-muted/10",
-                        isToday ? "border-primary bg-primary/5 shadow-soft" : "border-border/40 bg-muted/5"
+                        "rounded-xl border p-2.5 flex flex-col min-h-[90px] justify-between cursor-pointer transition-all duration-300 hover:border-primary/30 hover:bg-muted/5",
+                        isToday ? "border-primary/50 bg-primary/5 shadow-soft" : "border-border/30 bg-muted/5"
                       )}
                     >
                       <span className={cn(
-                        "text-xs font-bold self-end pr-1",
-                        isToday ? "text-primary font-black" : "text-muted-foreground"
+                        "text-[10px] font-bold self-end pr-0.5",
+                        isToday ? "text-primary font-black animate-pulse" : "text-muted-foreground/80"
                       )}>
                         {day.getDate()}
                       </span>
 
-                      <div className="space-y-1.5 mt-1 flex-1 overflow-y-auto max-h-[80px] scrollbar-none">
+                      <div className="space-y-1 mt-1.5 flex-1 overflow-y-auto max-h-[70px] scrollbar-none">
                         {dayClasses.map(c => (
                           <div
                             key={c.id}
@@ -352,7 +394,12 @@ export const ClassBoard = () => {
                               e.stopPropagation();
                               openEdit(c);
                             }}
-                            className="text-[9px] font-bold px-1.5 py-0.5 rounded-md border border-primary/20 bg-primary/10 text-primary truncate hover:scale-105 transition-transform"
+                            className={cn(
+                              "text-[9px] font-bold px-1.5 py-0.5 rounded-md border truncate hover:scale-[1.02] transition-transform",
+                              c.status === 'scheduled' ? 'border-blue-500/10 bg-blue-500/5 text-blue-600' :
+                              c.status === 'in_progress' ? 'border-amber-500/10 bg-amber-500/5 text-amber-600' :
+                              'border-emerald-500/10 bg-emerald-500/5 text-emerald-600'
+                            )}
                             title={`${c.student_name} - ${c.topic || 'Sem tema'}`}
                           >
                             {c.student_name.split(' ')[0]}
