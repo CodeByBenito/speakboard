@@ -14,40 +14,230 @@ export type Database = {
   }
   public: {
     Tables: {
-      class_history: {
+      ciclos: {
         Row: {
-          class_date: string
+          checkpoint_date: string | null
           created_at: string
-          id: string
-          notes: string | null
+          habilidades_prioritarias: string[]
+          id: number
+          objetivo: string | null
+          proximo_foco: string | null
+          semana_atual: number
           status: string
           student_id: number
-          topic: string | null
+          updated_at: string
           user_id: string
         }
         Insert: {
-          class_date: string
+          checkpoint_date?: string | null
           created_at?: string
-          id?: string
-          notes?: string | null
+          habilidades_prioritarias?: string[]
+          id?: number
+          objetivo?: string | null
+          proximo_foco?: string | null
+          semana_atual?: number
           status?: string
           student_id: number
-          topic?: string | null
-          user_id: string
+          updated_at?: string
+          user_id?: string
         }
         Update: {
-          class_date?: string
+          checkpoint_date?: string | null
           created_at?: string
-          id?: string
-          notes?: string | null
+          habilidades_prioritarias?: string[]
+          id?: number
+          objetivo?: string | null
+          proximo_foco?: string | null
+          semana_atual?: number
           status?: string
           student_id?: number
-          topic?: string | null
+          updated_at?: string
           user_id?: string
         }
         Relationships: [
           {
+            foreignKeyName: "ciclos_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      class_history: {
+        Row: {
+          class_date: string
+          conteudo_id: number | null
+          contexto: string | null
+          created_at: string
+          id: string
+          missao_pos_aula: string | null
+          notes: string | null
+          pontos_atencao: string | null
+          status: string
+          student_id: number
+          topic: string | null
+          user_id: string
+          vocabulario: string | null
+          weekly_planner_id: number | null
+        }
+        Insert: {
+          class_date: string
+          conteudo_id?: number | null
+          contexto?: string | null
+          created_at?: string
+          id?: string
+          missao_pos_aula?: string | null
+          notes?: string | null
+          pontos_atencao?: string | null
+          status?: string
+          student_id: number
+          topic?: string | null
+          user_id: string
+          vocabulario?: string | null
+          weekly_planner_id?: number | null
+        }
+        Update: {
+          class_date?: string
+          conteudo_id?: number | null
+          contexto?: string | null
+          created_at?: string
+          id?: string
+          missao_pos_aula?: string | null
+          notes?: string | null
+          pontos_atencao?: string | null
+          status?: string
+          student_id?: number
+          topic?: string | null
+          user_id?: string
+          vocabulario?: string | null
+          weekly_planner_id?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "class_history_conteudo_id_fkey"
+            columns: ["conteudo_id"]
+            isOneToOne: false
+            referencedRelation: "conteudos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "class_history_weekly_planner_id_fkey"
+            columns: ["weekly_planner_id"]
+            isOneToOne: false
+            referencedRelation: "weekly_planner"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "fk_student"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      conteudos: {
+        Row: {
+          created_at: string
+          descricao: string | null
+          id: number
+          link: string | null
+          nivel: string
+          tema: string | null
+          tipo: string
+          titulo: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          descricao?: string | null
+          id?: number
+          link?: string | null
+          nivel?: string
+          tema?: string | null
+          tipo?: string
+          titulo: string
+          updated_at?: string
+          user_id?: string
+        }
+        Update: {
+          created_at?: string
+          descricao?: string | null
+          id?: number
+          link?: string | null
+          nivel?: string
+          tema?: string | null
+          tipo?: string
+          titulo?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      feedbacks: {
+        Row: {
+          ciclo_id: number | null
+          created_at: string
+          data: string
+          id: number
+          is_conquista: boolean
+          nivel_confianca: string | null
+          nivel_grammar: string | null
+          nivel_listening: string | null
+          nivel_pronunciation: string | null
+          nivel_speaking: string | null
+          nivel_vocabulary: string | null
+          observacao: string | null
+          student_id: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          ciclo_id?: number | null
+          created_at?: string
+          data?: string
+          id?: number
+          is_conquista?: boolean
+          nivel_confianca?: string | null
+          nivel_grammar?: string | null
+          nivel_listening?: string | null
+          nivel_pronunciation?: string | null
+          nivel_speaking?: string | null
+          nivel_vocabulary?: string | null
+          observacao?: string | null
+          student_id: number
+          updated_at?: string
+          user_id?: string
+        }
+        Update: {
+          ciclo_id?: number | null
+          created_at?: string
+          data?: string
+          id?: number
+          is_conquista?: boolean
+          nivel_confianca?: string | null
+          nivel_grammar?: string | null
+          nivel_listening?: string | null
+          nivel_pronunciation?: string | null
+          nivel_speaking?: string | null
+          nivel_vocabulary?: string | null
+          observacao?: string | null
+          student_id?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feedbacks_ciclo_id_fkey"
+            columns: ["ciclo_id"]
+            isOneToOne: false
+            referencedRelation: "ciclos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "feedbacks_student_id_fkey"
             columns: ["student_id"]
             isOneToOne: false
             referencedRelation: "students"
@@ -209,6 +399,50 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      weekly_planner: {
+        Row: {
+          ciclo_id: number
+          created_at: string
+          id: number
+          missao: string | null
+          objetivo: string | null
+          semana: number
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          ciclo_id: number
+          created_at?: string
+          id?: number
+          missao?: string | null
+          objetivo?: string | null
+          semana?: number
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Update: {
+          ciclo_id?: number
+          created_at?: string
+          id?: number
+          missao?: string | null
+          objetivo?: string | null
+          semana?: number
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "weekly_planner_ciclo_id_fkey"
+            columns: ["ciclo_id"]
+            isOneToOne: false
+            referencedRelation: "ciclos"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
