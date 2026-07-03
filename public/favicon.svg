@@ -1,12 +1,40 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
-  <defs>
-    <linearGradient id="sb-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#ff6600" />
-      <stop offset="100%" stop-color="#ff4c1a" />
-    </linearGradient>
-  </defs>
-  <!-- Transparent background, rounded squircle with neon orange gradient -->
-  <rect x="32" y="32" width="448" height="448" rx="110" fill="url(#sb-grad)" />
-  <!-- Icon text "SB" in white with strong, modern font -->
-  <text x="50%" y="54%" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-weight="900" font-size="220" fill="#ffffff" text-anchor="middle" dominant-baseline="middle" letter-spacing="-0.05em">SB</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" shape-rendering="crispEdges">
+  <style>
+    .border { fill: #ff6a00; } /* Neon Orange */
+    .page { fill: #ffffff; } /* Book Pages */
+    .ribbon { fill: #ff3c00; } /* Bookmark ribbon */
+    .text-line { fill: #cbd5e1; } /* Slate-300 for readable lines */
+  </style>
+
+  <!-- Left Cover Outer Border -->
+  <rect x="0" y="3" width="1" height="9" class="border" />
+  <rect x="1" y="2" width="6" height="1" class="border" />
+  <rect x="1" y="12" width="6" height="1" class="border" />
+
+  <!-- Right Cover Outer Border -->
+  <rect x="15" y="3" width="1" height="9" class="border" />
+  <rect x="9" y="2" width="6" height="1" class="border" />
+  <rect x="9" y="12" width="6" height="1" class="border" />
+
+  <!-- Spine Center -->
+  <rect x="7" y="2" width="2" height="11" class="border" />
+
+  <!-- Pages Left -->
+  <rect x="1" y="3" width="6" height="9" class="page" />
+  <!-- Pages Right -->
+  <rect x="9" y="3" width="6" height="9" class="page" />
+
+  <!-- Left Page Lines (Simulating Text) -->
+  <rect x="2" y="5" width="4" height="1" class="text-line" />
+  <rect x="2" y="7" width="4" height="1" class="text-line" />
+  <rect x="2" y="9" width="3" height="1" class="text-line" />
+
+  <!-- Right Page Lines (Simulating Text) -->
+  <rect x="10" y="5" width="4" height="1" class="text-line" />
+  <rect x="10" y="7" width="4" height="1" class="text-line" />
+  <rect x="11" y="9" width="3" height="1" class="text-line" />
+
+  <!-- Bookmark Ribbon (Red/Orange hanging out) -->
+  <rect x="8" y="3" width="1" height="10" class="ribbon" />
+  <rect x="9" y="12" width="1" height="2" class="ribbon" />
 </svg>

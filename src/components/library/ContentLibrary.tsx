@@ -32,6 +32,14 @@ export const ContentLibrary = () => {
     useContents();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Conteudo | null>(null);
+  const [openedDrawers, setOpenedDrawers] = useState<Record<string, boolean>>({});
+
+  const toggleDrawer = (tipoKey: string) => {
+    setOpenedDrawers(prev => ({
+      ...prev,
+      [tipoKey]: !prev[tipoKey]
+    }));
+  };
 
   const canManage = (c: Conteudo) => isAdmin || c.user_id === user?.id;
 
@@ -49,19 +57,19 @@ export const ContentLibrary = () => {
   };
 
   return (
-    <div className="p-4 md:p-8 max-w-6xl mx-auto space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div className="p-4 md:p-8 w-full max-w-none px-4 md:px-10 space-y-8 animate-fade-in">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 border-b border-border/30 pb-6">
         <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2">
-            <Library className="w-6 h-6 text-primary" />
-            Biblioteca de Conteúdo
+          <h1 className="text-2xl md:text-3xl font-extrabold bg-gradient-primary bg-clip-text text-transparent flex items-center gap-2">
+            <Library className="w-7 h-7 text-primary" />
+            Biblioteca de Conteúdo Pedagógico
           </h1>
-          <p className="text-sm text-muted-foreground">
-            Materiais compartilhados entre os professores.
+          <p className="text-xs text-muted-foreground mt-1 font-semibold">
+            Explore materiais, apostilas e mídias compartilhados no armário digital institucional.
           </p>
         </div>
-        <Button onClick={openNew}>
-          <Plus className="w-4 h-4 mr-1" /> Novo conteúdo
+        <Button onClick={openNew} className="rounded-lg h-9 text-xs font-semibold">
+          <Plus className="w-4 h-4 mr-1" /> Novo Material
         </Button>
       </div>
 
@@ -133,71 +141,119 @@ export const ContentLibrary = () => {
           </Button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filtered.map((c) => (
-            <Card key={c.id} className="p-5 space-y-4 flex flex-col border-border/50 bg-card/45 backdrop-blur-sm shadow-card hover-lift hover:border-primary/30 hover:shadow-medium transition-all duration-300 rounded-2xl animate-scale-in">
-              <div className="flex items-start justify-between gap-2.5">
-                <h3 className="font-bold text-sm text-foreground leading-snug group-hover:text-primary transition-colors flex-1">{c.titulo}</h3>
-                {canManage(c) && (
-                  <div className="flex gap-1 shrink-0">
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      className="h-7 w-7 hover:bg-muted"
-                      onClick={() => openEdit(c)}
-                    >
-                      <Pencil className="w-3.5 h-3.5 text-muted-foreground hover:text-foreground" />
-                    </Button>
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      className="h-7 w-7 text-destructive hover:bg-destructive/10 hover:text-destructive"
-                      onClick={() => {
-                        toast.warning('Deseja excluir este material?', {
-                          description: 'Esta ação removerá o material permanentemente da biblioteca.',
-                          action: {
-                            label: 'Excluir',
-                            onClick: () => {
-                              deleteContent(c.id);
-                              toast.success('Material removido!');
-                            }
-                          }
-                        });
-                      }}
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </Button>
-                  </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          {CONTENT_TIPOS.map((tipo) => {
+            const items = filtered.filter(c => c.tipo === tipo.key);
+            if (items.length === 0) return null; // Only show active drawers
+            
+            const isOpen = openedDrawers[tipo.key] !== false; // Open by default
+            
+            return (
+              <Card 
+                key={tipo.key} 
+                className={cn(
+                  "border-border/40 bg-card/30 backdrop-blur-md shadow-card rounded-2xl overflow-hidden transition-all duration-500",
+                  isOpen ? "border-primary/30" : "hover:border-primary/20"
                 )}
-              </div>
-
-              <div className="flex flex-wrap gap-1.5">
-                <Badge variant="secondary" className="rounded-lg text-[9px] font-bold uppercase tracking-wider">{tipoLabel(c.tipo)}</Badge>
-                <Badge variant="outline" className={cn(
-                  "rounded-lg text-[9px] font-bold uppercase",
-                  c.nivel === 'Iniciante' ? 'border-warning/30 text-warning bg-warning/5' :
-                  c.nivel === 'Intermediário' ? 'border-primary/30 text-primary bg-primary/5' :
-                  'border-success/30 text-success bg-success/5'
-                )}>{c.nivel}</Badge>
-                {c.tema && <Badge variant="outline" className="rounded-lg text-[9px] font-bold text-muted-foreground">{c.tema}</Badge>}
-              </div>
-
-              {c.descricao && (
-                <p className="text-xs text-muted-foreground flex-1 leading-relaxed mt-1">{c.descricao}</p>
-              )}
-
-              {c.link && (
-                <a
-                  href={c.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 text-xs text-primary hover:underline hover:text-primary-glow font-bold mt-auto pt-2 hover-lift"
+              >
+                {/* Cabinet Drawer Header with metal handle styling */}
+                <div 
+                  onClick={() => toggleDrawer(tipo.key)}
+                  className="p-5 flex items-center justify-between cursor-pointer bg-muted/10 border-b border-border/30 hover:bg-muted/15 transition-all select-none group"
                 >
-                  <ExternalLink className="w-3.5 h-3.5" /> Abrir material
-                </a>
-              )}
-            </Card>
-          ))}
+                  <div className="flex items-center gap-2.5">
+                    <Library className="w-5 h-5 text-primary group-hover:animate-bounce" />
+                    <div>
+                      <h3 className="font-bold text-sm text-foreground">{tipo.label}</h3>
+                      <p className="text-[10px] text-muted-foreground font-semibold uppercase">{items.length} pastas</p>
+                    </div>
+                  </div>
+                  
+                  {/* Metal Handle graphic styling */}
+                  <div className="w-16 h-4 rounded-md border border-neutral-700 bg-gradient-to-b from-neutral-800 to-neutral-600 shadow-[inset_0_1px_3px_rgba(255,255,255,0.2)] flex items-center justify-center relative">
+                    <div className="absolute top-1/2 -translate-y-1/2 left-2 right-2 h-1 bg-neutral-900 rounded-sm"></div>
+                  </div>
+                </div>
+
+                {/* Collapsible content (suspended folders list) */}
+                <div className={cn(
+                  "p-4 space-y-3.5 transition-all duration-500",
+                  isOpen ? "max-h-[800px] opacity-100 overflow-y-auto" : "max-h-0 opacity-0 overflow-hidden p-0 border-none"
+                )}>
+                  {items.map((c) => (
+                    <div 
+                      key={c.id} 
+                      className="p-4 rounded-xl border border-border/30 bg-card/60 backdrop-blur-sm shadow-soft hover-lift hover:border-primary/30 transition-all duration-300 flex flex-col gap-2.5 animate-scale-in relative group/folder"
+                    >
+                      {/* Suspended folder tab design decoration */}
+                      <div className="absolute -top-1.5 left-6 px-3 py-0.5 rounded-t-md bg-primary/10 border-t border-x border-primary/25 text-[8px] font-bold text-primary tracking-widest uppercase">
+                        {c.nivel}
+                      </div>
+
+                      <div className="flex items-start justify-between gap-2.5 pt-1">
+                        <h4 className="font-bold text-xs leading-snug text-foreground flex-1 mt-0.5">{c.titulo}</h4>
+                        {canManage(c) && (
+                          <div className="flex gap-1 shrink-0">
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              className="h-6 w-6 hover:bg-muted"
+                              onClick={(e) => { e.stopPropagation(); openEdit(c); }}
+                            >
+                              <Pencil className="w-3 h-3 text-muted-foreground" />
+                            </Button>
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              className="h-6 w-6 text-destructive hover:bg-destructive/10"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toast.warning('Deseja excluir este material?', {
+                                  description: 'Esta ação removerá o material permanentemente da biblioteca.',
+                                  action: {
+                                    label: 'Excluir',
+                                    onClick: () => {
+                                      deleteContent(c.id);
+                                      toast.success('Material removido!');
+                                    }
+                                  }
+                                });
+                              }}
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+
+                      {c.descricao && (
+                        <p className="text-[11px] text-muted-foreground leading-relaxed font-medium">{c.descricao}</p>
+                      )}
+
+                      <div className="flex flex-wrap items-center justify-between mt-1 pt-2 border-t border-border/10">
+                        {c.tema ? (
+                          <Badge variant="outline" className="rounded-lg text-[9px] font-bold text-muted-foreground border-border/60">
+                            {c.tema}
+                          </Badge>
+                        ) : <div />}
+                        
+                        {c.link && (
+                          <a
+                            href={c.link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 text-[10px] text-primary hover:underline font-bold transition-transform hover:translate-x-1"
+                          >
+                            <ExternalLink className="w-3 h-3" /> Abrir material
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+            );
+          })}
         </div>
       )}
 

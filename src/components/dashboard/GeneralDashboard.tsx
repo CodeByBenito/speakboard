@@ -42,14 +42,34 @@ export const GeneralDashboard = () => {
   const { data, loading } = useDashboard();
 
   return (
-    <div className="p-4 md:p-8 max-w-6xl mx-auto space-y-6 animate-fade-in">
-      <div>
-        <h1 className="text-2xl md:text-3xl font-extrabold bg-gradient-primary bg-clip-text text-transparent tracking-tight">
-          Dashboard
-        </h1>
-        <p className="text-sm text-muted-foreground mt-1 font-medium">
-          Visão geral do método Speak&amp;Go Evolution.
-        </p>
+    <div className="p-4 md:p-8 w-full max-w-none px-4 md:px-10 space-y-8 animate-fade-in">
+      {/* Chalkboard / Quadro Negro Banner */}
+      <div className="relative overflow-hidden rounded-3xl border-4 border-amber-800/60 bg-zinc-950 p-6 md:p-8 shadow-card text-white flex flex-col md:flex-row items-center justify-between gap-6">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-zinc-900 via-neutral-950 to-zinc-950 opacity-95 pointer-events-none" />
+        
+        <div className="space-y-2.5 text-center md:text-left z-10">
+          <Badge className="bg-amber-500/10 text-amber-500 hover:bg-amber-500/20 border border-amber-500/20 rounded-full py-1 px-3 font-semibold uppercase tracking-wider text-[9px]">
+            Painel Pedagógico Speak&amp;Go Evolution 🎓
+          </Badge>
+          <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-white font-mono flex items-center justify-center md:justify-start gap-2">
+            Quadro de Ensino 📝
+          </h1>
+          <p className="text-xs text-zinc-300 max-w-xl font-medium leading-relaxed">
+            Monitore o progresso acadêmico, aulas semanais, evolução dos ciclos e pendências de seus estudantes em tempo real através do painel educativo.
+          </p>
+        </div>
+
+        {!loading && (
+          <div className="flex-shrink-0 flex items-center justify-center bg-zinc-900/60 border border-white/5 rounded-2xl p-4 backdrop-blur-md z-10 min-w-[140px]">
+            <div className="text-center space-y-1">
+              <span className="text-[9px] uppercase font-bold text-zinc-400 tracking-wider">Total de Alunos</span>
+              <div className="text-3xl font-black text-primary font-mono animate-glow-pulse">
+                {data.totalStudents}
+              </div>
+              <p className="text-[9px] text-zinc-500 font-semibold">Ativos no CRM</p>
+            </div>
+          </div>
+        )}
       </div>
 
       {loading ? (

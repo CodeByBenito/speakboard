@@ -47,13 +47,32 @@ export const UserProfile = () => {
   const [headline, setHeadline] = useState("");
   const [bio, setBio] = useState("");
 
-  // Sync extra fields from localStorage
+  // WhatsApp Gateway states
+  const [waUrl, setWaUrl] = useState("");
+  const [waToken, setWaToken] = useState("");
+  const [waReminderEnabled, setWaReminderEnabled] = useState(false);
+  const [waReminderTemplate, setWaReminderTemplate] = useState("");
+  const [waConfirmEnabled, setWaConfirmEnabled] = useState(false);
+  const [waConfirmTemplate, setWaConfirmTemplate] = useState("");
+  const [waReschedEnabled, setWaReschedEnabled] = useState(false);
+  const [waReschedTemplate, setWaReschedTemplate] = useState("");
+
+  // Sync extra fields and WhatsApp settings from localStorage
   useEffect(() => {
     if (user?.id) {
       const storedHeadline = localStorage.getItem(`speakboard_profile_headline_${user.id}`);
       const storedBio = localStorage.getItem(`speakboard_profile_bio_${user.id}`);
       if (storedHeadline) setHeadline(storedHeadline);
       if (storedBio) setBio(storedBio);
+
+      setWaUrl(localStorage.getItem(`speakboard_wa_url_${user.id}`) || "https://api.whatsapp-gateway.com/send");
+      setWaToken(localStorage.getItem(`speakboard_wa_token_${user.id}`) || "");
+      setWaReminderEnabled(localStorage.getItem(`speakboard_wa_rem_enabled_${user.id}`) === "true");
+      setWaReminderTemplate(localStorage.getItem(`speakboard_wa_rem_template_${user.id}`) || "Olá {student_name}, lembrete de que teremos aula hoje às {class_time}. Até já!");
+      setWaConfirmEnabled(localStorage.getItem(`speakboard_wa_conf_enabled_${user.id}`) === "true");
+      setWaConfirmTemplate(localStorage.getItem(`speakboard_wa_conf_template_${user.id}`) || "Olá {student_name}, confirme sua presença na aula do dia {class_date} às {class_time} respondendo a esta mensagem.");
+      setWaReschedEnabled(localStorage.getItem(`speakboard_wa_resch_enabled_${user.id}`) === "true");
+      setWaReschedTemplate(localStorage.getItem(`speakboard_wa_resch_template_${user.id}`) || "Olá {student_name}, sua aula foi reagendada para {class_date} às {class_time}.");
     }
   }, [user]);
 
@@ -75,6 +94,20 @@ export const UserProfile = () => {
       localStorage.setItem(`speakboard_profile_bio_${user.id}`, bio);
     }
     setIsEditing(false);
+  };
+
+  const handleSaveWhatsApp = () => {
+    if (user?.id) {
+      localStorage.setItem(`speakboard_wa_url_${user.id}`, waUrl);
+      localStorage.setItem(`speakboard_wa_token_${user.id}`, waToken);
+      localStorage.setItem(`speakboard_wa_rem_enabled_${user.id}`, String(waReminderEnabled));
+      localStorage.setItem(`speakboard_wa_rem_template_${user.id}`, waReminderTemplate);
+      localStorage.setItem(`speakboard_wa_conf_enabled_${user.id}`, String(waConfirmEnabled));
+      localStorage.setItem(`speakboard_wa_conf_template_${user.id}`, waConfirmTemplate);
+      localStorage.setItem(`speakboard_wa_resch_enabled_${user.id}`, String(waReschedEnabled));
+      localStorage.setItem(`speakboard_wa_resch_template_${user.id}`, waReschedTemplate);
+      toast.success("Integrações do WhatsApp salvas com sucesso!");
+    }
   };
 
   const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -103,7 +136,7 @@ export const UserProfile = () => {
     : "Junho de 2026";
 
   return (
-    <div className="max-w-6xl mx-auto p-4 md:p-6 space-y-6">
+    <div className="p-4 md:p-8 w-full max-w-none px-4 md:px-10 space-y-8 animate-fade-in">
       {/* Title */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
@@ -378,45 +411,131 @@ export const UserProfile = () => {
             </CardContent>
           </Card>
 
-          {/* Educational Integrations Preview */}
+          {/* WhatsApp Notification Gateway Configuration */}
           <Card className="border-border/40 bg-card/50 backdrop-blur-sm shadow-elegant rounded-2xl">
             <CardHeader className="pb-3 border-b border-border/30">
               <CardTitle className="text-base font-bold flex items-center gap-2">
                 <Sparkles className="w-4 h-4 text-primary" />
-                SaaS Integrações
+                Integração WhatsApp Gateway
               </CardTitle>
+              <CardDescription className="text-xs">
+                Configure as credenciais e modelos de notificações automáticas para alunos.
+              </CardDescription>
             </CardHeader>
-            <CardContent className="pt-4 space-y-3">
-              <p className="text-xs text-muted-foreground leading-relaxed mb-1">
-                Conecte suas ferramentas educacionais para sincronizar notas e agendas automaticamente.
-              </p>
-              
-              {/* Google Classroom */}
-              <div className="flex justify-between items-center p-2.5 border border-border/30 bg-muted/20 rounded-xl hover:bg-muted/40 transition-colors">
-                <div className="flex items-center space-x-2">
-                  <div className="w-6 h-6 bg-emerald-600/10 text-emerald-600 flex items-center justify-center rounded-lg text-xs font-bold">G</div>
-                  <span className="text-xs font-semibold">Google Classroom</span>
+            <CardContent className="pt-4 space-y-4">
+              <div className="space-y-3">
+                <div className="space-y-1">
+                  <Label htmlFor="waUrl" className="text-xs font-bold text-foreground">API Endpoint URL</Label>
+                  <Input
+                    id="waUrl"
+                    type="url"
+                    value={waUrl}
+                    onChange={(e) => setWaUrl(e.target.value)}
+                    placeholder="https://api.whatsapp-gateway.com/send"
+                    className="h-9 text-xs border-border/40 bg-card/40 focus-visible:ring-primary/50 rounded-lg"
+                  />
                 </div>
-                <Badge variant="secondary" className="text-[9px] bg-muted/60 text-muted-foreground rounded-full border border-border/50">Disponível</Badge>
+                <div className="space-y-1">
+                  <Label htmlFor="waToken" className="text-xs font-bold text-foreground">Token de Autenticação</Label>
+                  <Input
+                    id="waToken"
+                    type="password"
+                    value={waToken}
+                    onChange={(e) => setWaToken(e.target.value)}
+                    placeholder="Seu token de API secreto"
+                    className="h-9 text-xs border-border/40 bg-card/40 focus-visible:ring-primary/50 rounded-lg"
+                  />
+                </div>
               </div>
 
-              {/* Microsoft Teams */}
-              <div className="flex justify-between items-center p-2.5 border border-border/30 bg-muted/20 rounded-xl hover:bg-muted/40 transition-colors">
-                <div className="flex items-center space-x-2">
-                  <div className="w-6 h-6 bg-blue-600/10 text-blue-600 flex items-center justify-center rounded-lg text-xs font-bold">M</div>
-                  <span className="text-xs font-semibold">Microsoft Teams</span>
+              <Separator className="bg-border/20 my-4" />
+
+              <div className="space-y-5">
+                {/* 1. Lembrete de Aula */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="text-xs font-bold text-foreground">Lembrete de Aula Automático</h4>
+                      <p className="text-[10px] text-muted-foreground">Envia lembretes antes do início das aulas.</p>
+                    </div>
+                    <Switch
+                      checked={waReminderEnabled}
+                      onCheckedChange={setWaReminderEnabled}
+                    />
+                  </div>
+                  {waReminderEnabled && (
+                    <div className="space-y-1 animate-slide-down">
+                      <Label className="text-[10px] font-bold text-muted-foreground">Template de Mensagem</Label>
+                      <Textarea
+                        value={waReminderTemplate}
+                        onChange={(e) => setWaReminderTemplate(e.target.value)}
+                        placeholder="Template de lembrete..."
+                        className="text-xs min-h-[60px] border-border/40 bg-card/40 focus-visible:ring-primary/50 rounded-lg"
+                      />
+                      <p className="text-[9px] text-muted-foreground">Variáveis disponíveis: <code className="font-semibold text-primary">{`{student_name}`}</code>, <code className="font-semibold text-primary">{`{class_time}`}</code></p>
+                    </div>
+                  )}
                 </div>
-                <Badge variant="secondary" className="text-[9px] bg-muted/60 text-muted-foreground rounded-full border border-border/50">Disponível</Badge>
+
+                {/* 2. Confirmação de Aula */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="text-xs font-bold text-foreground">Confirmação de Presença</h4>
+                      <p className="text-[10px] text-muted-foreground">Envia solicitações de confirmação antecipada.</p>
+                    </div>
+                    <Switch
+                      checked={waConfirmEnabled}
+                      onCheckedChange={setWaConfirmEnabled}
+                    />
+                  </div>
+                  {waConfirmEnabled && (
+                    <div className="space-y-1 animate-slide-down">
+                      <Label className="text-[10px] font-bold text-muted-foreground">Template de Mensagem</Label>
+                      <Textarea
+                        value={waConfirmTemplate}
+                        onChange={(e) => setWaConfirmTemplate(e.target.value)}
+                        placeholder="Template de confirmação..."
+                        className="text-xs min-h-[60px] border-border/40 bg-card/40 focus-visible:ring-primary/50 rounded-lg"
+                      />
+                      <p className="text-[9px] text-muted-foreground">Variáveis disponíveis: <code className="font-semibold text-primary">{`{student_name}`}</code>, <code className="font-semibold text-primary">{`{class_date}`}</code>, <code className="font-semibold text-primary">{`{class_time}`}</code></p>
+                    </div>
+                  )}
+                </div>
+
+                {/* 3. Reagendamento de Aula */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="text-xs font-bold text-foreground">Notificação de Reagendamento</h4>
+                      <p className="text-[10px] text-muted-foreground">Envia alerta quando uma aula for alterada.</p>
+                    </div>
+                    <Switch
+                      checked={waReschedEnabled}
+                      onCheckedChange={setWaReschedEnabled}
+                    />
+                  </div>
+                  {waReschedEnabled && (
+                    <div className="space-y-1 animate-slide-down">
+                      <Label className="text-[10px] font-bold text-muted-foreground">Template de Mensagem</Label>
+                      <Textarea
+                        value={waReschedTemplate}
+                        onChange={(e) => setWaReschedTemplate(e.target.value)}
+                        placeholder="Template de reagendamento..."
+                        className="text-xs min-h-[60px] border-border/40 bg-card/40 focus-visible:ring-primary/50 rounded-lg"
+                      />
+                      <p className="text-[9px] text-muted-foreground">Variáveis disponíveis: <code className="font-semibold text-primary">{`{student_name}`}</code>, <code className="font-semibold text-primary">{`{class_date}`}</code>, <code className="font-semibold text-primary">{`{class_time}`}</code></p>
+                    </div>
+                  )}
+                </div>
               </div>
 
-              {/* WhatsApp Business */}
-              <div className="flex justify-between items-center p-2.5 border border-border/30 bg-muted/20 rounded-xl hover:bg-muted/40 transition-colors">
-                <div className="flex items-center space-x-2">
-                  <div className="w-6 h-6 bg-emerald-500/10 text-emerald-500 flex items-center justify-center rounded-lg text-xs font-bold">W</div>
-                  <span className="text-xs font-semibold">WhatsApp Gateway</span>
-                </div>
-                <Badge className="text-[9px] bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 rounded-full font-bold">Ativo</Badge>
-              </div>
+              <Button
+                onClick={handleSaveWhatsApp}
+                className="w-full bg-primary hover:bg-primary/95 text-primary-foreground font-semibold rounded-xl text-xs py-3 mt-2 shadow-soft transition-transform duration-300 hover:scale-[1.02]"
+              >
+                Salvar Integrações
+              </Button>
             </CardContent>
           </Card>
         </div>

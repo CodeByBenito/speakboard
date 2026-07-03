@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/dialog';
 import { CalendarRange, Plus, Pencil, Trash2, CheckCircle2, Circle } from 'lucide-react';
 import { WeeklyPlan } from '@/types/WeeklyPlanner';
+import { toast } from 'sonner';
 
 interface WeeklyPlannerCardProps {
   cicloId: number | null;
@@ -131,9 +132,18 @@ export const WeeklyPlannerCard = ({ cicloId, editable }: WeeklyPlannerCardProps)
                   <Button
                     size="icon"
                     variant="ghost"
-                    className="h-8 w-8 text-destructive"
+                    className="h-8 w-8 text-destructive hover:bg-destructive/10 hover:text-destructive transition-colors"
                     onClick={() => {
-                      if (window.confirm('Remover esta semana?')) deletePlan(p.id);
+                      toast.warning('Deseja remover esta semana?', {
+                        description: 'Esta ação não poderá ser desfeita.',
+                        action: {
+                          label: 'Excluir',
+                          onClick: () => {
+                            deletePlan(p.id);
+                            toast.success('Semana excluída com sucesso!');
+                          }
+                        }
+                      });
                     }}
                   >
                     <Trash2 className="w-4 h-4" />
