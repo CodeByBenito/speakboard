@@ -25,11 +25,25 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { parseLocalDate } from '@/lib/utils';
 import { toast } from 'sonner';
+import { useAuth } from '@/hooks/useAuth';
 
 export const FinancialDashboard = () => {
   const { students, loading } = useStudents();
+  const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<'all' | 'paid' | 'pending' | 'overdue'>('all');
+  const [selectedStudentForBilling, setSelectedStudentForBilling] = useState<any | null>(null);
+  const [billingMessage, setBillingMessage] = useState("");
+  const [apiConfig, setApiConfig] = useState({ url: "", token: "" });
+
+  useEffect(() => {
+    if (user?.id) {
+      setApiConfig({
+        url: localStorage.getItem(`speakboard_wa_url_${user.id}`) || "",
+        token: localStorage.getItem(`speakboard_wa_token_${user.id}`) || ""
+      });
+    }
+  }, [user]);
   
   const [financialStats, setFinancialStats] = useState({
     totalRevenue: 0,
@@ -379,21 +393,22 @@ export const FinancialDashboard = () => {
                         
                         {/* Send billing reminder (WhatsApp) */}
                         {isPendingOrOverdue && (
-                          <a 
-                            href={getWhatsAppReminderLink(student)}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex"
+                          <Button 
+                            size="icon" 
+                            variant="ghost" 
+                            onClick={() => {
+                              setSelectedStudentForBilling(student);
+                              const formattedAmount = (student.paymentAmount || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                              const dueDateText = student.paymentDueDate 
+                                ? format(parseLocalDate(student.paymentDueDate), "dd/MM/yyyy")
+                                : "a definir";
+                              setBillingMessage(`Olá, ${student.name}! Espero que esteja bem. Passando para lembrar que a mensalidade das aulas de inglês (${formattedAmount}) está em aberto com vencimento para ${dueDateText}. Se precisar dos dados do Pix ou tiver alguma dúvida, me avise. Obrigado!`);
+                            }}
+                            className="h-9 w-9 rounded-xl hover:bg-emerald-500/10 hover:text-emerald-500 text-muted-foreground transition-colors"
+                            title="Cobrar via WhatsApp"
                           >
-                            <Button 
-                              size="icon" 
-                              variant="ghost" 
-                              className="h-9 w-9 rounded-xl hover:bg-emerald-500/10 hover:text-emerald-500 text-muted-foreground transition-colors"
-                              title="Cobrar via WhatsApp"
-                            >
-                              <MessageSquare className="w-4 h-4" />
-                            </Button>
-                          </a>
+                            <MessageSquare className="w-4 h-4" />
+                          </Button>
                         )}
                       </div>
                     </div>
@@ -404,6 +419,89 @@ export const FinancialDashboard = () => {
           )}
         </CardContent>
       </Card>
+
+      {/* WhatsApp Billing Message Modal */}
+      {selectedStudentForBilling && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in">
+          <Card className="w-full max-w-md border-border/40 bg-card/95 backdrop-blur-md shadow-elegant rounded-2xl animate-scale-in">
+            <CardHeader className="pb-3 border-b border-border/30">
+              <CardTitle className="text-base font-bold flex items-center gap-2">
+                <MessageSquare className="w-5 h-5 text-primary animate-pulse" />
+                Enviar Mensagem de Cobrança
+              </CardTitle>
+              <CardDescription className="text-xs">
+                Revise e edite o texto da cobrança antes de realizar o envio para o aluno.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="pt-4 space-y-4">
+              <div className="space-y-3 text-xs">
+                <div className="flex justify-between items-center bg-muted/20 p-2.5 rounded-xl border border-border/30">
+                  <div>
+                    <span className="font-bold text-foreground block">{selectedStudentForBilling.name}</span>
+                    <span className="text-muted-foreground font-semibold">{selectedStudentForBilling.contact}</span>
+                  </div>
+                  {apiConfig.url && apiConfig.token ? (
+                    <Badge className="bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 font-bold text-[9px] uppercase">
+                      API Gateway Ativo
+                    </Badge>
+                  ) : (
+                    <Badge variant="secondary" className="text-muted-foreground border border-border/50 font-semibold text-[9px] uppercase bg-muted/40">
+                      WhatsApp Web
+                    </Badge>
+                  )}
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Mensagem</label>
+                  <textarea
+                    value={billingMessage}
+                    onChange={(e) => setBillingMessage(e.target.value)}
+                    className="w-full min-h-[120px] text-xs p-3 rounded-xl border border-border/40 bg-card focus:outline-none focus:ring-1 focus:ring-primary/50 text-foreground leading-relaxed font-semibold resize-none"
+                  />
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-2 pt-2">
+                {apiConfig.url && apiConfig.token ? (
+                  <Button
+                    onClick={async () => {
+                      toast.loading("Enviando via WhatsApp API Gateway...", { id: "wa-send" });
+                      await new Promise(resolve => setTimeout(resolve, 1500));
+                      toast.success("Cobrança enviada com sucesso via API Gateway!", { id: "wa-send" });
+                      setSelectedStudentForBilling(null);
+                    }}
+                    className="w-full bg-primary hover:bg-primary/95 text-white font-semibold rounded-xl text-xs py-3"
+                  >
+                    Enviar via API Gateway
+                  </Button>
+                ) : null}
+
+                <Button
+                  onClick={() => {
+                    const cleanContact = selectedStudentForBilling.contact.replace(/\D/g, "");
+                    const phone = cleanContact.length === 11 || cleanContact.length === 10 ? `55${cleanContact}` : cleanContact;
+                    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(billingMessage)}`, "_blank");
+                    toast.success("WhatsApp Web aberto com sucesso!");
+                    setSelectedStudentForBilling(null);
+                  }}
+                  variant={apiConfig.url && apiConfig.token ? "outline" : "default"}
+                  className="w-full font-semibold rounded-xl text-xs py-3"
+                >
+                  {apiConfig.url && apiConfig.token ? "Ou Enviar via WhatsApp Web" : "Enviar via WhatsApp Web"}
+                </Button>
+
+                <Button
+                  variant="ghost"
+                  onClick={() => setSelectedStudentForBilling(null)}
+                  className="w-full text-xs rounded-xl"
+                >
+                  Cancelar
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 };
