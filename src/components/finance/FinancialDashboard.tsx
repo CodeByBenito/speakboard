@@ -6,45 +6,30 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Progress } from '@/components/ui/progress';
 import { Input } from '@/components/ui/input';
-import { 
-  DollarSign, 
-  TrendingUp, 
-  AlertTriangle, 
+import {
+  DollarSign,
+  TrendingUp,
+  AlertTriangle,
   CheckCircle,
-  Clock,
   Calendar,
   Users,
   Search,
-  Download,
   MessageSquare,
   Sparkles,
   ArrowUpRight,
-  TrendingDown
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { parseLocalDate } from '@/lib/utils';
 import { toast } from 'sonner';
-import { useAuth } from '@/hooks/useAuth';
 
 export const FinancialDashboard = () => {
   const { students, loading } = useStudents();
-  const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<'all' | 'paid' | 'pending' | 'overdue'>('all');
   const [selectedStudentForBilling, setSelectedStudentForBilling] = useState<any | null>(null);
   const [billingMessage, setBillingMessage] = useState("");
-  const [apiConfig, setApiConfig] = useState({ url: "", token: "" });
 
-  useEffect(() => {
-    if (user?.id) {
-      setApiConfig({
-        url: localStorage.getItem(`speakboard_wa_url_${user.id}`) || "",
-        token: localStorage.getItem(`speakboard_wa_token_${user.id}`) || ""
-      });
-    }
-  }, [user]);
-  
   const [financialStats, setFinancialStats] = useState({
     totalRevenue: 0,
     paidStudents: 0,
@@ -147,26 +132,6 @@ export const FinancialDashboard = () => {
     }
   };
 
-  const getWhatsAppReminderLink = (student: any) => {
-    const formattedAmount = (student.paymentAmount || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-    const dueDateText = student.paymentDueDate 
-      ? format(parseLocalDate(student.paymentDueDate), "dd/MM/yyyy")
-      : "a definir";
-    const message = `Olá, ${student.name}! Espero que esteja bem. Passando para lembrar que a mensalidade das aulas de inglês (${formattedAmount}) está em aberto com vencimento para ${dueDateText}. Se precisar dos dados do Pix ou tiver alguma dúvida, me avise. Obrigado!`;
-    const cleanContact = student.contact.replace(/\D/g, "");
-    
-    // Default country code to 55 if not specified (Brazil)
-    const phone = cleanContact.length === 11 || cleanContact.length === 10
-      ? `55${cleanContact}` 
-      : cleanContact;
-
-    return `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
-  };
-
-  const handleExportData = () => {
-    toast.success("Relatório financeiro exportado com sucesso (simulado CSV)!");
-  };
-
   const filteredStudents = students.filter(student => {
     const matchesSearch = student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                           student.contact.toLowerCase().includes(searchTerm.toLowerCase());
@@ -194,24 +159,14 @@ export const FinancialDashboard = () => {
 
   return (
     <div className="max-w-7xl mx-auto p-4 md:p-6 space-y-6">
-      {/* Title & Actions */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-2xl md:text-3xl font-extrabold bg-gradient-primary bg-clip-text text-transparent">
-            Gestão Financeira
-          </h2>
-          <p className="text-sm text-muted-foreground mt-1">
-            Controle de mensalidades, faturamento mensal e cobrança integrada.
-          </p>
-        </div>
-        <Button 
-          onClick={handleExportData} 
-          variant="outline" 
-          size="sm" 
-          className="border-primary/20 hover:bg-primary/5 hover:text-primary rounded-xl shadow-soft font-semibold"
-        >
-          <Download className="w-4 h-4 mr-2" /> Exportar Dados
-        </Button>
+      {/* Title */}
+      <div>
+        <h2 className="text-2xl md:text-3xl font-extrabold bg-gradient-primary bg-clip-text text-transparent">
+          Gestão Financeira
+        </h2>
+        <p className="text-sm text-muted-foreground mt-1">
+          Controle de mensalidades, faturamento mensal e cobrança integrada.
+        </p>
       </div>
 
       {/* Main SaaS Stats Grid */}
@@ -440,15 +395,9 @@ export const FinancialDashboard = () => {
                     <span className="font-bold text-foreground block">{selectedStudentForBilling.name}</span>
                     <span className="text-muted-foreground font-semibold">{selectedStudentForBilling.contact}</span>
                   </div>
-                  {apiConfig.url && apiConfig.token ? (
-                    <Badge className="bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 font-bold text-[9px] uppercase">
-                      API Gateway Ativo
-                    </Badge>
-                  ) : (
-                    <Badge variant="secondary" className="text-muted-foreground border border-border/50 font-semibold text-[9px] uppercase bg-muted/40">
-                      WhatsApp Web
-                    </Badge>
-                  )}
+                  <Badge variant="secondary" className="text-muted-foreground border border-border/50 font-semibold text-[9px] uppercase bg-muted/40">
+                    WhatsApp Web
+                  </Badge>
                 </div>
 
                 <div className="space-y-1">
@@ -462,20 +411,6 @@ export const FinancialDashboard = () => {
               </div>
 
               <div className="flex flex-col gap-2 pt-2">
-                {apiConfig.url && apiConfig.token ? (
-                  <Button
-                    onClick={async () => {
-                      toast.loading("Enviando via WhatsApp API Gateway...", { id: "wa-send" });
-                      await new Promise(resolve => setTimeout(resolve, 1500));
-                      toast.success("Cobrança enviada com sucesso via API Gateway!", { id: "wa-send" });
-                      setSelectedStudentForBilling(null);
-                    }}
-                    className="w-full bg-primary hover:bg-primary/95 text-white font-semibold rounded-xl text-xs py-3"
-                  >
-                    Enviar via API Gateway
-                  </Button>
-                ) : null}
-
                 <Button
                   onClick={() => {
                     const cleanContact = selectedStudentForBilling.contact.replace(/\D/g, "");
@@ -484,10 +419,9 @@ export const FinancialDashboard = () => {
                     toast.success("WhatsApp Web aberto com sucesso!");
                     setSelectedStudentForBilling(null);
                   }}
-                  variant={apiConfig.url && apiConfig.token ? "outline" : "default"}
                   className="w-full font-semibold rounded-xl text-xs py-3"
                 >
-                  {apiConfig.url && apiConfig.token ? "Ou Enviar via WhatsApp Web" : "Enviar via WhatsApp Web"}
+                  Enviar via WhatsApp Web
                 </Button>
 
                 <Button

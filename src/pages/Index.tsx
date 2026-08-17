@@ -12,7 +12,6 @@ import {
   LayoutDashboard,
   Library,
   Users2,
-  Menu,
   ChevronDown,
 } from "lucide-react";
 import {
@@ -23,8 +22,21 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import {
+  SidebarProvider,
+  Sidebar,
+  SidebarHeader,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
+  SidebarInset,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
 import { AdminDashboard } from "@/components/admin/AdminDashboard";
 import { GeneralDashboard } from "@/components/dashboard/GeneralDashboard";
 import { StudentsProgressView } from "@/components/students/StudentsProgressView";
@@ -36,6 +48,16 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
 type ViewKey = 'dashboard' | 'students_progress' | 'finance' | 'library' | 'profile' | 'team' | 'admin';
+
+const VIEW_TITLES: Record<ViewKey, string> = {
+  dashboard: 'Painel & Aulas',
+  students_progress: 'Alunos & Progresso',
+  finance: 'Financeiro & Cobrança',
+  library: 'Biblioteca de Conteúdos',
+  profile: 'Perfil do Professor',
+  admin: 'Administração',
+  team: 'Equipe Docente',
+};
 
 const Index = () => {
   const { user, signOut } = useAuth();
@@ -63,115 +85,101 @@ const Index = () => {
   }
 
   // 4 Pilares Centrais
-  const primaryNavItems: { key: ViewKey; label: string; icon: JSX.Element; badge?: string }[] = [
-    { key: 'dashboard', label: 'Painel & Aulas', icon: <LayoutDashboard className="w-5 h-5" /> },
-    { key: 'students_progress', label: 'Alunos & Progresso', icon: <GraduationCap className="w-5 h-5" /> },
-    { key: 'finance', label: 'Financeiro', icon: <DollarSign className="w-5 h-5" /> },
-    { key: 'library', label: 'Biblioteca', icon: <Library className="w-5 h-5" /> },
+  const primaryNavItems: { key: ViewKey; label: string; icon: JSX.Element }[] = [
+    { key: 'dashboard', label: 'Painel & Aulas', icon: <LayoutDashboard /> },
+    { key: 'students_progress', label: 'Alunos & Progresso', icon: <GraduationCap /> },
+    { key: 'finance', label: 'Financeiro', icon: <DollarSign /> },
+    { key: 'library', label: 'Biblioteca', icon: <Library /> },
   ];
 
   return (
-    <div className="flex min-h-screen bg-background text-foreground overflow-x-hidden">
-      {/* Left Sidebar - Desktop */}
-      <aside className="hidden md:flex flex-col items-center justify-between py-6 w-20 border-r border-border/40 bg-card/60 backdrop-blur-xl h-screen sticky top-0 z-40">
-        <div className="flex flex-col items-center gap-8 w-full">
-          {/* Logo Brand */}
+    <SidebarProvider>
+      {/* Left Sidebar - Desktop, collapsible via SidebarTrigger */}
+      <Sidebar collapsible="icon" className="border-r border-sidebar-border">
+        <SidebarHeader className="px-2 py-3">
           <button
             onClick={() => setActiveView('dashboard')}
-            className="flex items-center justify-center p-2.5 rounded-2xl bg-primary/10 border border-primary/20 shadow-soft hover:scale-105 transition-all"
+            className="flex items-center gap-2.5 px-1 rounded-xl hover:opacity-90 transition-opacity group-data-[collapsible=icon]:justify-center"
             title="SpeakBoard Home"
           >
-            <Logo className="w-8 h-8" />
+            <Logo className="w-9 h-9 shrink-0" />
+            <span className="font-black text-base tracking-tight text-sidebar-foreground group-data-[collapsible=icon]:hidden">
+              SpeakBoard
+            </span>
           </button>
+        </SidebarHeader>
 
-          {/* Core Navigation Items */}
-          <nav className="flex flex-col items-center gap-3 w-full px-2">
-            {primaryNavItems.map((item) => (
-              <button
-                key={item.key}
-                onClick={() => setActiveView(item.key)}
-                className={cn(
-                  "p-3 rounded-2xl transition-all duration-300 relative group flex items-center justify-center",
-                  activeView === item.key
-                    ? "bg-primary text-white shadow-soft scale-110"
-                    : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
-                )}
-                title={item.label}
-              >
-                {item.icon}
-                <span className="absolute left-full ml-3 px-2.5 py-1.5 bg-popover text-popover-foreground text-xs font-semibold rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-card pointer-events-none z-50 border border-border/40">
-                  {item.label}
-                </span>
-              </button>
-            ))}
-          </nav>
-        </div>
+        <SidebarContent>
+          <SidebarGroup>
+            <SidebarMenu>
+              {primaryNavItems.map((item) => (
+                <SidebarMenuItem key={item.key}>
+                  <SidebarMenuButton
+                    isActive={activeView === item.key}
+                    tooltip={item.label}
+                    onClick={() => setActiveView(item.key)}
+                    className="data-[active=true]:bg-primary data-[active=true]:text-primary-foreground data-[active=true]:font-semibold"
+                  >
+                    {item.icon}
+                    <span>{item.label}</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroup>
+        </SidebarContent>
 
-        {/* Bottom Sidebar Actions */}
-        <div className="flex flex-col items-center gap-3 w-full px-2">
-          {isAdmin && (
-            <button
-              onClick={() => setActiveView('admin')}
-              className={cn(
-                "p-3 rounded-2xl transition-all duration-300 relative group flex items-center justify-center",
-                activeView === 'admin'
-                  ? "bg-primary text-white shadow-soft scale-110"
-                  : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
-              )}
-              title="Painel Admin"
-            >
-              <Shield className="w-5 h-5" />
-              <span className="absolute left-full ml-3 px-2.5 py-1.5 bg-popover text-popover-foreground text-xs font-semibold rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-card pointer-events-none z-50 border border-border/40">
-                Administração
-              </span>
-            </button>
-          )}
-
-          <button
-            onClick={() => setActiveView('profile')}
-            className={cn(
-              "p-3 rounded-2xl transition-all duration-300 relative group flex items-center justify-center",
-              activeView === 'profile'
-                ? "bg-primary text-white shadow-soft scale-110"
-                : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
+        <SidebarFooter>
+          <SidebarMenu>
+            {isAdmin && (
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  isActive={activeView === 'admin'}
+                  tooltip="Administração"
+                  onClick={() => setActiveView('admin')}
+                  className="data-[active=true]:bg-primary data-[active=true]:text-primary-foreground data-[active=true]:font-semibold"
+                >
+                  <Shield />
+                  <span>Administração</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
             )}
-            title="Meu Perfil"
-          >
-            <User className="w-5 h-5" />
-            <span className="absolute left-full ml-3 px-2.5 py-1.5 bg-popover text-popover-foreground text-xs font-semibold rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-card pointer-events-none z-50 border border-border/40">
-              Meu Perfil
-            </span>
-          </button>
-
-          <button
-            onClick={handleSignOut}
-            className="p-3 rounded-2xl text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-all duration-300 group relative"
-            title="Sair"
-          >
-            <LogOut className="w-5 h-5" />
-            <span className="absolute left-full ml-3 px-2.5 py-1.5 bg-destructive text-white text-xs font-semibold rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-card pointer-events-none z-50">
-              Sair
-            </span>
-          </button>
-        </div>
-      </aside>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                isActive={activeView === 'profile'}
+                tooltip="Meu Perfil"
+                onClick={() => setActiveView('profile')}
+                className="data-[active=true]:bg-primary data-[active=true]:text-primary-foreground data-[active=true]:font-semibold"
+              >
+                <User />
+                <span>Meu Perfil</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                tooltip="Sair"
+                onClick={handleSignOut}
+                className="text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+              >
+                <LogOut />
+                <span>Sair</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarFooter>
+      </Sidebar>
 
       {/* Main Container */}
-      <div className="flex-1 flex flex-col min-h-screen pb-20 md:pb-6 overflow-x-hidden">
+      <SidebarInset className="pb-20 md:pb-0">
         {/* Top Header - Unified */}
-        <header className="h-16 border-b border-border/40 bg-card/40 backdrop-blur-md sticky top-0 z-30 px-4 md:px-8 flex items-center justify-between">
-          <div className="flex items-center gap-3">
+        <header className="h-16 border-b border-border/60 bg-card/60 backdrop-blur-md sticky top-0 z-30 px-4 md:px-6 flex items-center justify-between shrink-0">
+          <div className="flex items-center gap-2 md:gap-3">
+            <SidebarTrigger className="hidden md:flex text-muted-foreground hover:text-foreground" />
             <div className="md:hidden flex items-center justify-center p-1.5 rounded-xl bg-primary/10 border border-primary/20">
               <Logo className="w-6 h-6" />
             </div>
             <span className="font-bold text-sm md:text-base tracking-tight text-foreground">
-              {activeView === 'dashboard' && 'Painel & Aulas'}
-              {activeView === 'students_progress' && 'Alunos & Progresso'}
-              {activeView === 'finance' && 'Financeiro & Cobrança'}
-              {activeView === 'library' && 'Biblioteca de Conteúdos'}
-              {activeView === 'profile' && 'Perfil do Professor'}
-              {activeView === 'admin' && 'Administração'}
-              {activeView === 'team' && 'Equipe Docente'}
+              {VIEW_TITLES[activeView]}
             </span>
           </div>
 
@@ -236,7 +244,7 @@ const Index = () => {
         </header>
 
         {/* Dynamic Content View */}
-        <main className="flex-1">
+        <div className="flex-1">
           {activeView === 'dashboard' && <GeneralDashboard />}
           {activeView === 'students_progress' && <StudentsProgressView />}
           {activeView === 'finance' && <FinancialDashboard />}
@@ -244,8 +252,8 @@ const Index = () => {
           {activeView === 'profile' && <UserProfile />}
           {activeView === 'team' && isAdmin && <TeacherWorkload />}
           {activeView === 'admin' && isAdmin && <AdminDashboard />}
-        </main>
-      </div>
+        </div>
+      </SidebarInset>
 
       {/* Floating Bottom Bar - Mobile */}
       <nav className="md:hidden fixed bottom-3 left-4 right-4 h-16 bg-card/90 backdrop-blur-xl border border-border/50 rounded-2xl shadow-elegant flex items-center justify-around px-2 z-50">
@@ -265,7 +273,7 @@ const Index = () => {
           </button>
         ))}
       </nav>
-    </div>
+    </SidebarProvider>
   );
 };
 
