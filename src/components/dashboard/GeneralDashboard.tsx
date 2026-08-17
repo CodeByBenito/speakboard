@@ -488,11 +488,11 @@ export const GeneralDashboard = () => {
                   <div>
                     <p className="font-bold text-foreground">{c.student_name}</p>
                     <p className="text-muted-foreground text-[11px]">
-                      Ciclo termina em {new Date(c.end_date + 'T00:00:00').toLocaleDateString('pt-BR')}
+                      Checkpoint em {new Date(c.checkpoint_date + 'T00:00:00').toLocaleDateString('pt-BR')}
                     </p>
                   </div>
                   <Badge variant="outline" className="text-[10px] border-border/40">
-                    Foco: {c.focus}
+                    Foco: {c.objetivo || 'Geral'}
                   </Badge>
                 </div>
               ))}
@@ -510,9 +510,9 @@ export const GeneralDashboard = () => {
             <p className="text-xs text-muted-foreground py-6 text-center">Nenhuma pendência financeira.</p>
           ) : (
             <div className="space-y-2.5">
-              {data.financePending.map((f) => (
+              {data.financePending.map((f, i) => (
                 <div
-                  key={f.id}
+                  key={i}
                   className="flex items-center justify-between p-3 rounded-xl border border-border/30 bg-muted/20 text-xs"
                 >
                   <div>

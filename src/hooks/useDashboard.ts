@@ -69,7 +69,7 @@ export const useDashboard = () => {
 
       const [studentsRes, ciclosRes, classesRes] = await Promise.all([
         supabase.from('students').select('id, name, payment_status, payment_amount, payment_due_date'),
-        supabase.from('ciclos').select('student_id, status, checkpoint_date, objetivo, students(name)'),
+        supabase.from('ciclos').select('id, student_id, status, checkpoint_date, objetivo, students(name)'),
         supabase
           .from('class_history')
           .select('id, class_date, status, topic, students(name)')
@@ -118,7 +118,7 @@ export const useDashboard = () => {
           return d >= today && d <= in14;
         })
         .map((c: any) => ({
-          ciclo_id: c.student_id,
+          ciclo_id: c.id,
           student_name: c.students?.name ?? '—',
           checkpoint_date: c.checkpoint_date,
           objetivo: c.objetivo,

@@ -4,14 +4,14 @@ import { useProgressGuide } from '@/hooks/useProgressGuide';
 import { useClassBoard } from '@/hooks/useClassBoard';
 import { useContents } from '@/hooks/useContents';
 import { StudentDisplay, StudentLevel } from '@/types/Student';
-import { Cycle } from '@/types/Cycle';
-import { Feedback, HABILIDADES, NIVEL_ORDER, NivelPercebido, NIVEL_LABELS } from '@/types/Feedback';
+import { Cycle, CICLO_TOTAL_SEMANAS } from '@/types/Cycle';
+import { Feedback, FEEDBACK_AREAS, NIVEL_ORDER, NivelPercebido, NIVEL_LABELS } from '@/types/Feedback';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
   Search,
   Plus,
@@ -174,7 +174,7 @@ export const StudentsProgressView = () => {
             <h1 className="text-2xl font-bold tracking-tight text-foreground">Alunos &amp; Progresso</h1>
           </div>
           <p className="text-xs text-muted-foreground">
-            Acompanhe o desenvolvimento pedagógico, ciclo de 12 semanas, feedbacks e habilidades dos estudantes.
+            Acompanhe o desenvolvimento pedagógico, ciclo de {CICLO_TOTAL_SEMANAS} semanas, feedbacks e habilidades dos estudantes.
           </p>
         </div>
 
@@ -254,7 +254,6 @@ export const StudentsProgressView = () => {
                     <div className="flex items-center justify-between gap-3">
                       <div className="flex items-center gap-3 min-w-0">
                         <Avatar className="h-10 w-10 border border-border/40 shrink-0">
-                          {student.avatarUrl && <AvatarImage src={student.avatarUrl} />}
                           <AvatarFallback className="bg-primary/10 text-primary font-bold text-xs">
                             {student.name.slice(0, 2).toUpperCase()}
                           </AvatarFallback>
@@ -310,7 +309,6 @@ export const StudentsProgressView = () => {
                 <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                   <div className="flex items-center gap-4">
                     <Avatar className="h-14 w-14 border-2 border-primary/20 shadow-soft">
-                      {selectedStudent.avatarUrl && <AvatarImage src={selectedStudent.avatarUrl} />}
                       <AvatarFallback className="bg-primary text-white font-black text-lg">
                         {selectedStudent.name.slice(0, 2).toUpperCase()}
                       </AvatarFallback>
@@ -374,7 +372,7 @@ export const StudentsProgressView = () => {
                 </div>
               </Card>
 
-              {/* 12-Week Pedagogical Cycle Card */}
+              {/* Pedagogical Cycle Card */}
               <Card className="border-border/40 bg-card/60 backdrop-blur-md shadow-card p-5 md:p-6 space-y-4">
                 <div className="flex items-center justify-between flex-wrap gap-2">
                   <div className="flex items-center gap-2">
@@ -383,11 +381,11 @@ export const StudentsProgressView = () => {
                     </div>
                     <div>
                       <h3 className="font-bold text-sm tracking-tight text-foreground">
-                        Ciclo Pedagógico de 12 Semanas
+                        Ciclo Pedagógico de {CICLO_TOTAL_SEMANAS} Semanas
                       </h3>
                       <p className="text-xs text-muted-foreground">
                         {guide.activeCycle
-                          ? `Semana ${guide.activeCycle.semana_atual || 1} de 12 • Foco: ${guide.activeCycle.objetivo_geral || 'Geral'}`
+                          ? `Semana ${guide.activeCycle.semana_atual || 1} de ${CICLO_TOTAL_SEMANAS} • Foco: ${guide.activeCycle.objetivo || 'Geral'}`
                           : 'Nenhum ciclo ativo no momento'}
                       </p>
                     </div>
@@ -426,11 +424,11 @@ export const StudentsProgressView = () => {
                     <div className="flex items-center justify-between text-xs font-semibold">
                       <span className="text-muted-foreground">Evolução do Ciclo</span>
                       <span className="text-primary font-mono">
-                        {Math.round(((guide.activeCycle.semana_atual || 1) / 12) * 100)}%
+                        {Math.round(((guide.activeCycle.semana_atual || 1) / CICLO_TOTAL_SEMANAS) * 100)}%
                       </span>
                     </div>
                     <Progress
-                      value={((guide.activeCycle.semana_atual || 1) / 12) * 100}
+                      value={((guide.activeCycle.semana_atual || 1) / CICLO_TOTAL_SEMANAS) * 100}
                       className="h-2.5 bg-muted/60"
                     />
 
@@ -473,8 +471,8 @@ export const StudentsProgressView = () => {
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 pt-2">
-                  {HABILIDADES.map((hab) => {
-                    const nivel = guide.snapshot?.[hab.key as keyof typeof guide.snapshot] as NivelPercebido | null;
+                  {FEEDBACK_AREAS.map((hab) => {
+                    const nivel = guide.snapshot?.[hab.key] ?? null;
                     return (
                       <div
                         key={hab.key}
@@ -523,8 +521,11 @@ export const StudentsProgressView = () => {
                         className="p-3.5 rounded-xl border border-border/30 bg-card/40 space-y-2 text-xs"
                       >
                         <div className="flex items-center justify-between">
-                          <span className="font-bold text-foreground">
+                          <span className="font-bold text-foreground flex items-center gap-1.5">
                             {fb.created_at ? format(new Date(fb.created_at), "dd 'de' MMMM, yyyy", { locale: ptBR }) : 'Data não informada'}
+                            {fb.is_conquista && (
+                              <Trophy className="w-3.5 h-3.5 text-amber-500" />
+                            )}
                           </span>
                           <Button
                             size="icon"
@@ -538,15 +539,8 @@ export const StudentsProgressView = () => {
                             <Edit className="w-3 h-3" />
                           </Button>
                         </div>
-                        {fb.pontos_fortes && (
-                          <p className="text-muted-foreground">
-                            <strong className="text-emerald-600 dark:text-emerald-400">Pontos Fortes:</strong> {fb.pontos_fortes}
-                          </p>
-                        )}
-                        {fb.pontos_melhoria && (
-                          <p className="text-muted-foreground">
-                            <strong className="text-amber-600 dark:text-amber-400">O que Praticar:</strong> {fb.pontos_melhoria}
-                          </p>
+                        {fb.observacao && (
+                          <p className="text-muted-foreground">{fb.observacao}</p>
                         )}
                       </div>
                     ))}
@@ -624,19 +618,40 @@ export const StudentsProgressView = () => {
       />
 
       <FeedbackDialog
-        open={feedbackOpen}
-        onOpenChange={setFeedbackOpen}
-        studentId={selectedStudentId}
+        isOpen={feedbackOpen}
+        onClose={() => {
+          setFeedbackOpen(false);
+          setEditingFeedback(null);
+        }}
+        onSave={async (input) => {
+          if (editingFeedback) {
+            await guide.updateFeedback(editingFeedback.id, input);
+          } else {
+            await guide.addFeedback(input);
+          }
+          await guide.refetch();
+        }}
+        cicloId={guide.activeCycle?.id ?? null}
+        studentName={selectedStudent?.name}
         initial={editingFeedback}
-        onSaved={guide.refetch}
       />
 
       <CycleDialog
-        open={cycleOpen}
-        onOpenChange={setCycleOpen}
-        studentId={selectedStudentId}
+        isOpen={cycleOpen}
+        onClose={() => {
+          setCycleOpen(false);
+          setEditingCycle(null);
+        }}
+        onSave={async (input) => {
+          if (editingCycle) {
+            await guide.updateCycle(editingCycle.id, input);
+          } else {
+            await guide.addCycle(input);
+          }
+          await guide.refetch();
+        }}
+        studentName={selectedStudent?.name}
         initial={editingCycle}
-        onSaved={guide.refetch}
       />
 
       <SessionNoteDialog

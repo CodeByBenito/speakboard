@@ -14,7 +14,7 @@ Plataforma profissional e moderna para gestão pedagógica, progresso acadêmico
 
 ### 2. 🎓 Alunos & Progresso (Ficha Única Integrada)
 * **Master-Detail Pedagógico**: Lista rápida e pesquisável à esquerda com filtro por níveis (*Iniciante*, *Intermediário*, *Avançado*) e ficha pedagógica completa à direita.
-* **Ciclo de 12 Semanas**: Acompanhamento visual da evolução semanal e metas do estudante.
+* **Ciclo de 8 Semanas**: Acompanhamento visual da evolução semanal e metas do estudante.
 * **Snapshot de Habilidades**: Indicador visual de domínio em competências essenciais (*Speaking, Listening, Grammar, Vocabulary, Pronunciation*).
 * **Feedbacks Contínuos**: Histórico de pontos fortes, pontos de melhoria e conquistas.
 * **Ações Rápidas**: Contato direto via WhatsApp, agendamento de nova aula, edição de cadastro e histórico.
